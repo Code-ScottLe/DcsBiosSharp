@@ -1,0 +1,8 @@
+C:\Users\vule3\source\repos\DcsBiosSharp\DcsBiosSharp\DcsBiosSharp\bin\Debug\netstandard2.0\DcsBiosSharp.deps.json
+C:\Users\vule3\source\repos\DcsBiosSharp\DcsBiosSharp\DcsBiosSharp\bin\Debug\netstandard2.0\DcsBiosSharp.dll
+C:\Users\vule3\source\repos\DcsBiosSharp\DcsBiosSharp\DcsBiosSharp\bin\Debug\netstandard2.0\DcsBiosSharp.pdb
+C:\Users\vule3\source\repos\DcsBiosSharp\DcsBiosSharp\DcsBiosSharp\obj\Debug\netstandard2.0\DcsBiosSharp.csprojAssemblyReference.cache
+C:\Users\vule3\source\repos\DcsBiosSharp\DcsBiosSharp\DcsBiosSharp\obj\Debug\netstandard2.0\DcsBiosSharp.AssemblyInfoInputs.cache
+C:\Users\vule3\source\repos\DcsBiosSharp\DcsBiosSharp\DcsBiosSharp\obj\Debug\netstandard2.0\DcsBiosSharp.AssemblyInfo.cs
+C:\Users\vule3\source\repos\DcsBiosSharp\DcsBiosSharp\DcsBiosSharp\obj\Debug\netstandard2.0\DcsBiosSharp.dll
+C:\Users\vule3\source\repos\DcsBiosSharp\DcsBiosSharp\DcsBiosSharp\obj\Debug\netstandard2.0\DcsBiosSharp.pdb
