@@ -38,12 +38,13 @@ namespace DcsBiosSharp.Connection
         public event EventHandler<DcsBiosExportDataReceivedEventArgs> ExportDataReceived;
 
         public DcsBiosUdpConnection()
-            : this(new DcsBiosProtocolParser(), new IPEndPoint(IPAddress.Loopback, DEFAULT_DCS_BIOS_LISTENER_PORT), new IPEndPoint(IPAddress.Any, DEFAULT_DCS_BIOS_MULTICAST_PORT))
+            : this(new DcsBiosProtocolParser())
         {
         }
 
-        public DcsBiosUdpConnection(IDcsBiosProtocolParser parser, IPEndPoint dcsBiosReceivingEndpoint, IPEndPoint dcsBiosExportingEndpoint)
+        public DcsBiosUdpConnection(IDcsBiosProtocolParser parser)
         {
+            // To do : re-enable user-configurable later.
             _internalBuffer = new ConcurrentQueue<byte[]>();
 
             // Setup sender.
@@ -51,20 +52,15 @@ namespace DcsBiosSharp.Connection
             _client.ExclusiveAddressUse = false;
             _client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _client.EnableBroadcast = true;
-            _dcsBiosReceivingEndpoint = dcsBiosReceivingEndpoint;
+            _dcsBiosReceivingEndpoint = new IPEndPoint(IPAddress.Loopback, DEFAULT_DCS_BIOS_LISTENER_PORT);
 
             // Setup listening
-            _dcsBiosExportingEndpoint = dcsBiosExportingEndpoint;
+            _dcsBiosExportingEndpoint = new IPEndPoint(IPAddress.Any, DEFAULT_DCS_BIOS_MULTICAST_PORT);
             _exportListener = new UdpClient();
             _exportListener.ExclusiveAddressUse = false;
             _exportListener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _exportListener.Client.Bind(_dcsBiosExportingEndpoint);
-
-            // Detect if multicast.
-            if(dcsBiosExportingEndpoint.Address.GetAddressBytes()[0] >= 224 && dcsBiosExportingEndpoint.Address.GetAddressBytes()[0] <= 239)
-            {
-                _exportListener.JoinMulticastGroup(dcsBiosExportingEndpoint.Address);
-            }
+            _exportListener.JoinMulticastGroup(IPAddress.Parse(DEFAULT_DCS_BIOS_MULTICAST_IP));
 
             //Setup polling thread.
             _tokenSource = new CancellationTokenSource();
