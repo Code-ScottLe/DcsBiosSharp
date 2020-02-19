@@ -115,5 +115,13 @@ namespace DcsBiosSharp.Protocol
             return toBeReturned;
 
         }
+
+        public byte[] GetInputBuffer(IDcsBiosCommand command)
+        {
+            string payload = $"{command.Name} {command.Arguments}\n";
+            byte[] buffer = Encoding.ASCII.GetBytes(payload);
+
+            return buffer;
+        }
     }
 }

@@ -30,7 +30,7 @@ namespace DcsBiosSharp.Connection
 
         private ConcurrentQueue<byte[]> _internalBuffer;
 
-        private IDcsBiosProtocolParser Parser
+        private IDcsBiosProtocolParser Protocol
         {
             get; set;
         }
@@ -65,7 +65,7 @@ namespace DcsBiosSharp.Connection
             //Setup polling thread.
             _tokenSource = new CancellationTokenSource();
 
-            Parser = parser;
+            Protocol = parser;
         }
 
         ~DcsBiosUdpConnection()
@@ -73,19 +73,11 @@ namespace DcsBiosSharp.Connection
             this.Dispose();
         }
 
-        public async Task SendCommandAsync(string command, string args)
+        public async Task SendCommandAsync(IDcsBiosCommand command)
         {
-            if (string.IsNullOrEmpty(command?.Trim()))
-            {
-                throw new ArgumentNullException(nameof(command), "Command can't be null!");
-            }
+            byte[] buffer = Protocol.GetInputBuffer(command);
 
-            // might worth checking for space in command here.
-
-            string payload = $"{command} {args}\n";
-            byte[] buffer = Encoding.ASCII.GetBytes(payload);
-
-            await _client.SendAsync(buffer, payload.Length, _dcsBiosReceivingEndpoint);
+            await _client.SendAsync(buffer, buffer.Length, _dcsBiosReceivingEndpoint);
         }
 
         public void Start()
@@ -128,7 +120,7 @@ namespace DcsBiosSharp.Connection
                 // Has something in the buffer. 
                 while (_internalBuffer.TryDequeue(out byte[] buffer))
                 {
-                    IReadOnlyList<IDcsBiosExportData> data = Parser.ParseBuffer(buffer);
+                    IReadOnlyList<IDcsBiosExportData> data = Protocol.ParseBuffer(buffer);
                     if (ExportDataReceived != null)
                     {
                         var ignored = Task.Run(() => ExportDataReceived.Invoke(this, new DcsBiosExportDataReceivedEventArgs(data)));

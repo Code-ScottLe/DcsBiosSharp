@@ -11,6 +11,6 @@ namespace DcsBiosSharp.Connection
 
         void Start();
 
-        Task SendCommandAsync(string command, string args);
+        Task SendCommandAsync(IDcsBiosCommand command);
     }
 }
