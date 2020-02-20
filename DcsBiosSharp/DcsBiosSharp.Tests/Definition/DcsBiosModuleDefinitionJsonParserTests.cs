@@ -8,28 +8,39 @@ using DcsBiosSharp.Definition.Inputs;
 using DcsBiosSharp.Definition.Outputs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace DcsBiosSharp.Tests.Definition
+namespace DcsBiosSharp.Definition.Tests
 {
     [TestClass]
     public class DcsBiosModuleDefinitionJsonParserTests
     {
+        private string commonJsonLocation = "./Assets/CommonData.json";
+        private string commonJson;
 
-        [DataTestMethod()]
-        [DataRow("./Assets/CommonData.json","./Assets/FA-18C_hornet.json")]
-        public void ParseModuleFromJsonTest_WithCommonDataAndValidModuleJson_ReturnsExpectedModule(string commonJsonPath, string testModuleJsonPath)
+        [TestInitialize]
+        public void TestInit()
+        {
+            if (File.Exists(commonJsonLocation) && string.IsNullOrWhiteSpace(commonJson))
+            {
+                commonJson = File.ReadAllText(commonJsonLocation);
+            }
+        }
+
+        [TestMethod]
+        public void ParseModuleFromJsonTest_WithCommonDataAndValidModuleJson_ReturnsExpectedModule()
         {
             // Arrange
-            if (!File.Exists(testModuleJsonPath) || !File.Exists(commonJsonPath))
+            string testModuleJsonPath = "./Assets/FA-18C_hornet.json";
+
+            if (!File.Exists(testModuleJsonPath))
             {
                 Assert.Inconclusive($"Test json is missing");
             }
 
-            string commonJson = File.ReadAllText(commonJsonPath);
             string moduleJson = File.ReadAllText(testModuleJsonPath);
 
             // Act
             var parser = new DcsBiosModuleDefinitionJsonParser(commonJson);
-            IModule module = parser.ParseModuleFromJson("FA-18C_hornet", moduleJson);
+            IModule module = parser.ParseModuleFromJson(Path.GetFileNameWithoutExtension(testModuleJsonPath), moduleJson);
 
             // Assert.
             Assert.IsNotNull(module);
