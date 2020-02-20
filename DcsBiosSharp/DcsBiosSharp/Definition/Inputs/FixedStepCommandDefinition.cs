@@ -25,6 +25,11 @@ namespace DcsBiosSharp.Definition.Inputs
 
         public string Arguments => string.Empty;
 
+        public IModuleInstrument Instrument
+        {
+            get; set;
+        }
+
         public FixedStepCommandDefinition()
             : this(DEFAULT_COMMAND_DESCRIPTION)
         {

@@ -39,18 +39,23 @@ namespace DcsBiosSharp.Definition
             get; private set;
         }
 
-        public DcsBiosModuleInstrument(string category, string controlType, string description, string identifier, IEnumerable<IDcsBiosInputDefinition> inputDef, IEnumerable<IDcsBiosOutputDefinition> outputDefs)
+        public DcsBiosModuleInstrument(string category, string controlType, string description, string identifier, IEnumerable<IDcsBiosInputDefinition> inputDefs, IEnumerable<IDcsBiosOutputDefinition> outputDefs)
         {
             Category = category;
             ControlType = controlType;
             Description = description;
             Identifier = identifier;
-            InputDefinitions = inputDef is IReadOnlyList<IDcsBiosInputDefinition> listy ? listy : inputDef.ToList();
+            InputDefinitions = inputDefs is IReadOnlyList<IDcsBiosInputDefinition> listy ? listy : inputDefs.ToList();
             OutputDefinitions = outputDefs is IReadOnlyList<IDcsBiosOutputDefinition> listy2 ? listy2 : outputDefs.ToList();
 
             foreach(var outputDef in OutputDefinitions)
             {
                 outputDef.Instrument = this;
+            }
+
+            foreach (var inputDef in InputDefinitions)
+            {
+                inputDef.Instrument = this;
             }
         }
     }

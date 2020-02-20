@@ -21,6 +21,11 @@ namespace DcsBiosSharp.Definition.Inputs
 
         public bool HasArgs => true;
 
+        public IModuleInstrument Instrument
+        {
+            get; set;
+        }
+
         protected SetStateCommandDefinition(string description)
         {
             Description = description;

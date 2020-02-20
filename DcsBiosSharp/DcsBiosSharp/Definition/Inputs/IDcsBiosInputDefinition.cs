@@ -7,6 +7,11 @@ namespace DcsBiosSharp.Definition.Inputs
 {
     public interface IDcsBiosInputDefinition
     {
+        IModuleInstrument Instrument
+        {
+            get; set;
+        }
+
         string Name
         {
             get;
