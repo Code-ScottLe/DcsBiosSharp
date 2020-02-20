@@ -60,7 +60,6 @@ namespace DcsBiosSharp.Definition
                         }
 
                         var commandInstance = new DcsBiosModuleInstrument(commandCategory, commandControlType, commandDescription, commandIdentifier, inputList, outputDefinitionList);
-
                         instruments.Add(commandInstance);
                     }
                 }

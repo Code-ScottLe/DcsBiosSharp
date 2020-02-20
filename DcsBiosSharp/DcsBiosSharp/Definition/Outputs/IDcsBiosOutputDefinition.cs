@@ -6,6 +6,11 @@ namespace DcsBiosSharp.Definition.Outputs
 {
     public interface IDcsBiosOutputDefinition
     {
+        IModuleInstrument Instrument
+        {
+            get; set;
+        }
+
         uint Address
         {
             get; set;

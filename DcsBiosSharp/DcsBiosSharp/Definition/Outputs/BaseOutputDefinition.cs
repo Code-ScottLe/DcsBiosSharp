@@ -26,6 +26,11 @@ namespace DcsBiosSharp.Definition.Outputs
             get;
         }
 
+        public IModuleInstrument Instrument
+        {
+            get; set;
+        }
+
         public BaseOutputDefinition(uint address, string description = default(string), string suffix = default(string))
         {
             Address = address;

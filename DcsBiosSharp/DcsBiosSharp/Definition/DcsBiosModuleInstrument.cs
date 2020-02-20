@@ -47,6 +47,11 @@ namespace DcsBiosSharp.Definition
             Identifier = identifier;
             InputDefinitions = inputDef is IReadOnlyList<IDcsBiosInputDefinition> listy ? listy : inputDef.ToList();
             OutputDefinitions = outputDefs is IReadOnlyList<IDcsBiosOutputDefinition> listy2 ? listy2 : outputDefs.ToList();
+
+            foreach(var outputDef in OutputDefinitions)
+            {
+                outputDef.Instrument = this;
+            }
         }
     }
 }
