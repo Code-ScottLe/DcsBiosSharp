@@ -25,12 +25,7 @@ namespace DcsBiosSharp.Definition.Outputs
 
         public override string GetValueFromBuffer(IReadOnlyList<byte> buffer)
         {
-            if (buffer.Count > MaxLength)
-            {
-                throw new ArgumentException($"Buffer contains more data than expected");
-            }
-
-            return Encoding.Unicode.GetString(buffer.ToArray());
+            return Encoding.ASCII.GetString(buffer.Skip((int)Address).Take(MaxLength).ToArray());
         }
     }
 }

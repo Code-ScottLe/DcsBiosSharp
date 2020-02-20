@@ -14,13 +14,7 @@ namespace DcsBiosSharp.Protocol.Tests
         public void ParseBufferTest_WithValidBuffer_ReturnNonZeroUpdates()
         {
             // Arrange
-            FileStream testBufferStream = File.OpenRead("./Assets/dump.buffer");
-            BinaryReader binary = new BinaryReader(testBufferStream);
-
-            byte[] buffer = binary.ReadBytes((int)testBufferStream.Length);
-
-            binary.Dispose();
-            testBufferStream.Dispose();
+            byte[] buffer = File.ReadAllBytes("./Assets/dump.buffer");
 
             // Act
 

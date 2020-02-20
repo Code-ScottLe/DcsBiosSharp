@@ -36,13 +36,8 @@ namespace DcsBiosSharp.Definition.Outputs
 
         public override int GetValueFromBuffer(IReadOnlyList<byte> buffer)
         {
-            if (buffer.Count != 2)
-            {
-                throw new ArgumentException($"buffer contains " + (buffer.Count < 2 ? "less" : "more") + $"data than expected! Need : 2, given: {buffer.Count}");
-            }
-
             // Flip the byte around as it is litte endian
-            ushort raw = BitConverter.ToUInt16(buffer.Reverse().ToArray(), 0);
+            ushort raw = BitConverter.ToUInt16(buffer.Skip((int)Address).Take(2).Reverse().ToArray(), 0);
 
             // masking.
             int masked = (raw & Mask) >> ShiftBy;
