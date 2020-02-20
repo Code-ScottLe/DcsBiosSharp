@@ -1,12 +1,12 @@
-﻿using DcsBiosSharp.Definition;
-using DcsBiosSharp.Definition.Inputs;
-using DcsBiosSharp.Definition.Outputs;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using DcsBiosSharp.Definition;
+using DcsBiosSharp.Definition.Inputs;
+using DcsBiosSharp.Definition.Outputs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DcsBiosSharp.Tests.Definition
 {
@@ -46,6 +46,12 @@ namespace DcsBiosSharp.Tests.Definition
             Assert.IsInstanceOfType(leftDDIContCtl.OutputDefinitions.First(), typeof(IntegerOutputDefinition));
         }
 
+        [TestMethod]
+        public void ParseModuleFromJsonCtorTest_WithNoArgs_CreateNewInstanceOk()
+        {
+            var parser = new DcsBiosModuleDefinitionJsonParser();
 
+            Assert.IsNotNull(parser);
+        }
     }
 }
