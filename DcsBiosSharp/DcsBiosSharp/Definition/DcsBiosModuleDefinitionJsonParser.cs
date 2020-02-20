@@ -21,11 +21,10 @@ namespace DcsBiosSharp.Definition
 
         public IModule ParseModuleFromJson(string moduleId, string json)
         {
-
             List<IModuleInstrument> instruments = new List<IModuleInstrument>();
 
             // Add common data if we have them.
-            foreach (var metaInstrument in _commonsModule?.Instruments)
+            foreach (var metaInstrument in _commonsModule?.Instruments ?? Enumerable.Empty<IModuleInstrument>())
             {
                 instruments.Add(metaInstrument);
             }
@@ -167,6 +166,7 @@ namespace DcsBiosSharp.Definition
                     switch (max.Type)
                     {
                         case JTokenType.Integer:
+                            return new VariableStepCommandDefinition((int)(Int64)maxValue.Value, (int)(Int64)suggestValue.Value); // even though this is technically Uint16
                         case JTokenType.Float:
                             return new VariableStepCommandDefinition((double)maxValue.Value, (double)suggestValue.Value);
                         default:

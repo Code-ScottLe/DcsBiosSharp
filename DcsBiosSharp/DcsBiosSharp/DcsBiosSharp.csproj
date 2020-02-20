@@ -5,15 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assests\CommonData.json" />
-    <None Remove="Assests\MetadataEnd.json" />
-    <None Remove="Assests\MetadataStart.json" />
+    <None Remove="Assets\CommonData.json" />
+    <None Remove="Assets\MetadataEnd.json" />
+    <None Remove="Assets\MetadataStart.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Assests\CommonData.json" />
-    <EmbeddedResource Include="Assests\MetadataEnd.json" />
-    <EmbeddedResource Include="Assests\MetadataStart.json" />
+    <EmbeddedResource Include="Assets\CommonData.json" />
+    <EmbeddedResource Include="Assets\MetadataEnd.json" />
+    <EmbeddedResource Include="Assets\MetadataStart.json" />
   </ItemGroup>
 
   <ItemGroup>
