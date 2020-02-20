@@ -16,18 +16,22 @@ namespace DcsBiosSharp.Definition.Inputs
             get; private set;
         }
 
-        public virtual bool HasArgs => true;
-        
-        public ActionCommandDefinition(string description = default(string))
+        public bool HasArgs => false;
+
+        public string ActionArgs
+        {
+            get; private set;
+        }
+
+        public ActionCommandDefinition(string actionArgs, string description = default(string))
         {
             Description = description;
+            ActionArgs = actionArgs;
         }
 
         public IDcsBiosCommand CreateCommand(params object[] args)
         {
-            string commandArgs = string.Join(" ", args).Trim();
-
-            var command = new DcsBiosCommand(DEFAULT_COMMAND_INTERFACE_NAME, commandArgs, this);
+            var command = new DcsBiosCommand(DEFAULT_COMMAND_INTERFACE_NAME, ActionArgs, this);
 
             return command;
         }
