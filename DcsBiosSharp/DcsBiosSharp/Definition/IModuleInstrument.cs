@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DcsBiosSharp.Definition
 {
-    public interface IModuleDefinition
+    public interface IModuleInstrument
     {
     }
 }

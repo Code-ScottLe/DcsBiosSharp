@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DcsBiosSharp.Connection;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -20,5 +21,7 @@ namespace DcsBiosSharp.Definition.Inputs
         {
             get;
         }
+
+        IDcsBiosCommand CreateCommand(params object[] args);
     }
 }
