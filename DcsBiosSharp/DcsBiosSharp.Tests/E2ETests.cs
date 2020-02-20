@@ -22,13 +22,7 @@ namespace DcsBiosSharp.Tests
             var connection = GetMockedConnection();
             var sampleModule = GetSampleModule();
 
-            connection.ExportDataReceived += (s, e) =>
-            {
-                foreach(var exportdata in e.Data)
-                {
-                    buffer.HandleExportData(exportdata);
-                }
-            };
+            connection.ExportDataReceived += buffer.OnExportDataReceived;
 
             // Act
             connection.Start();

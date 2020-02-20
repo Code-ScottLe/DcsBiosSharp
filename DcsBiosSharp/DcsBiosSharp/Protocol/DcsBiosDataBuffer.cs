@@ -28,5 +28,13 @@ namespace DcsBiosSharp.Protocol
 
             BufferUpdated?.Invoke(this, new DcsBiosBufferUpdatedEventArgs(exportData));
         }
+
+        public void OnExportDataReceived(object sender, DcsBiosExportDataReceivedEventArgs args)
+        {
+            foreach(IDcsBiosExportData exportData in args.Data)
+            {
+                HandleExportData(exportData);
+            }
+        }
     }
 }
