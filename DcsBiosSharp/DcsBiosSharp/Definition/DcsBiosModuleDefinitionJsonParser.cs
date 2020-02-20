@@ -14,18 +14,18 @@ namespace DcsBiosSharp.Definition
     {
         private IModule _commonsModule;
 
-        public DcsBiosModuleDefinitionJsonParser()
+        public DcsBiosModuleDefinitionJsonParser(string commonDataJson = default)
         {
-            _commonsModule = ParseModuleFromJson("CommonData", GetEmbeddedJsonFile("CommonData.json"));
+            _commonsModule = string.IsNullOrWhiteSpace(commonDataJson) ? null : ParseModuleFromJson("CommonData", commonDataJson);
         }
-
 
         public IModule ParseModuleFromJson(string moduleId, string json)
         {
 
             List<IModuleInstrument> instruments = new List<IModuleInstrument>();
-            // Add common data
-            foreach (var metaInstrument in _commonsModule.Instruments)
+
+            // Add common data if we have them.
+            foreach (var metaInstrument in _commonsModule?.Instruments)
             {
                 instruments.Add(metaInstrument);
             }
@@ -186,20 +186,6 @@ namespace DcsBiosSharp.Definition
                 return null;
             }
 
-        }
-
-        private static string GetEmbeddedJsonFile(string fileName)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-
-            string resourceName = assembly.GetManifestResourceNames().FirstOrDefault(str => str.EndsWith(fileName));
-
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                string result = reader.ReadToEnd();
-                return result;
-            }
         }
     }
 }

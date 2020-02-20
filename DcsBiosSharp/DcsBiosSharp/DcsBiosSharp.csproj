@@ -5,6 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assests\CommonData.json" />
+    <None Remove="Assests\MetadataEnd.json" />
+    <None Remove="Assests\MetadataStart.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assests\CommonData.json" />
+    <EmbeddedResource Include="Assests\MetadataEnd.json" />
+    <EmbeddedResource Include="Assests\MetadataStart.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
