@@ -10,7 +10,7 @@ namespace DcsBiosSharp.Definition.Tests
     public class ModuleDefinitionManagerTests
     {
         [TestMethod]
-        public async Task RefreshModuleAsyncTest_WithDefaultFolder_ReturnNonZeroModules()
+        public async Task RefreshModuleAsyncTest_WithDefaultFolder_HasNonZeroModules()
         {
             // Arrange
             var manager = new ModuleDefinitionManager();
