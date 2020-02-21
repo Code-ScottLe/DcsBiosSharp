@@ -9,22 +9,13 @@ namespace DcsBiosSharp.Definition
 {
     public class DcsBiosModuleDefinitionJsonParser
     {
-        private IModule _commonsModule;
-
-        public DcsBiosModuleDefinitionJsonParser(string commonDataJson = default)
+        public DcsBiosModuleDefinitionJsonParser()
         {
-            _commonsModule = string.IsNullOrWhiteSpace(commonDataJson) ? null : ParseModuleFromJson("CommonData", commonDataJson);
         }
 
         public IModule ParseModuleFromJson(string moduleId, string json)
         {
             List<IModuleInstrument> instruments = new List<IModuleInstrument>();
-
-            // Add common data if we have them.
-            foreach (var metaInstrument in _commonsModule?.Instruments ?? Enumerable.Empty<IModuleInstrument>())
-            {
-                instruments.Add(metaInstrument);
-            }
 
             if (!string.IsNullOrWhiteSpace(json))
             {

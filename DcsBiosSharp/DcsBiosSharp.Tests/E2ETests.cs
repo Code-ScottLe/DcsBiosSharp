@@ -49,19 +49,17 @@ namespace DcsBiosSharp.Tests
 
         private IModule GetSampleModule()
         {
-            string commonJsonLocation = "./Assets/CommonData.json";
             string testModuleJsonPath = "./Assets/FA-18C_hornet.json";
 
-            if (!File.Exists(testModuleJsonPath) && !File.Exists(commonJsonLocation))
+            if (!File.Exists(testModuleJsonPath))
             {
                 Assert.Inconclusive($"Test json is missing");
             }
 
-            string commonJson = File.ReadAllText(commonJsonLocation);
             string moduleJson = File.ReadAllText(testModuleJsonPath);
 
             // Act
-            var parser = new DcsBiosModuleDefinitionJsonParser(commonJson);
+            var parser = new DcsBiosModuleDefinitionJsonParser();
             IModule module = parser.ParseModuleFromJson(Path.GetFileNameWithoutExtension(testModuleJsonPath), moduleJson);
 
             return module;

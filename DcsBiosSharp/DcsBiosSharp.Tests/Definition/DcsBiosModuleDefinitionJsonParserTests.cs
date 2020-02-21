@@ -13,18 +13,6 @@ namespace DcsBiosSharp.Definition.Tests
     [TestClass]
     public class DcsBiosModuleDefinitionJsonParserTests
     {
-        private string commonJsonLocation = "./Assets/CommonData.json";
-        private string commonJson;
-
-        [TestInitialize]
-        public void TestInit()
-        {
-            if (File.Exists(commonJsonLocation) && string.IsNullOrWhiteSpace(commonJson))
-            {
-                commonJson = File.ReadAllText(commonJsonLocation);
-            }
-        }
-
         [TestMethod]
         public void ParseModuleFromJsonTest_WithCommonDataAndValidModuleJson_ReturnsExpectedModule()
         {
@@ -39,7 +27,7 @@ namespace DcsBiosSharp.Definition.Tests
             string moduleJson = File.ReadAllText(testModuleJsonPath);
 
             // Act
-            var parser = new DcsBiosModuleDefinitionJsonParser(commonJson);
+            var parser = new DcsBiosModuleDefinitionJsonParser();
             IModule module = parser.ParseModuleFromJson(Path.GetFileNameWithoutExtension(testModuleJsonPath), moduleJson);
 
             // Assert.
@@ -55,14 +43,6 @@ namespace DcsBiosSharp.Definition.Tests
 
             Assert.AreEqual(expected: 1, actual: leftDDIContCtl.OutputDefinitions.Count);
             Assert.IsInstanceOfType(leftDDIContCtl.OutputDefinitions.First(), typeof(IntegerOutputDefinition));
-        }
-
-        [TestMethod]
-        public void ParseModuleFromJsonCtorTest_WithNoArgs_CreateNewInstanceOk()
-        {
-            var parser = new DcsBiosModuleDefinitionJsonParser();
-
-            Assert.IsNotNull(parser);
         }
     }
 }
