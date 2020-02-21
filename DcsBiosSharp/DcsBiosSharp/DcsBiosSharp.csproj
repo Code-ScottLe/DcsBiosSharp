@@ -2,12 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.0.1</Version>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <Authors>Code.ScottLe</Authors>
+    <Company>Code.ScottLe</Company>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Assets\CommonData.json" />
     <None Remove="Assets\MetadataEnd.json" />
     <None Remove="Assets\MetadataStart.json" />
+    <None Include="..\..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
