@@ -1,8 +1,6 @@
-﻿using DcsBiosSharp.Definition.Inputs;
+﻿using System.Collections.Generic;
+using DcsBiosSharp.Definition.Inputs;
 using DcsBiosSharp.Definition.Outputs;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DcsBiosSharp.Definition
 {
@@ -12,9 +10,9 @@ namespace DcsBiosSharp.Definition
 
         string ControlType { get; }
 
-        string Description { get;}
+        string Description { get; }
 
-        string Identifier { get;  }
+        string Identifier { get; }
 
         IReadOnlyList<IDcsBiosInputDefinition> InputDefinitions { get; }
 

@@ -1,7 +1,5 @@
-﻿using DcsBiosSharp.Connection;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using DcsBiosSharp.Connection;
 
 namespace DcsBiosSharp.Protocol
 {

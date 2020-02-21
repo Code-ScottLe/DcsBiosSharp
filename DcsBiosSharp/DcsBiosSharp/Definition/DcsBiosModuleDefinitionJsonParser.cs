@@ -1,12 +1,9 @@
-﻿using DcsBiosSharp.Definition.Inputs;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using DcsBiosSharp.Definition.Inputs;
 using DcsBiosSharp.Definition.Outputs;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace DcsBiosSharp.Definition
 {

@@ -1,11 +1,8 @@
 ﻿using DcsBiosSharp.Connection;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DcsBiosSharp.Definition.Inputs
 {
-    public class FixedStepCommandDefinition : IDcsBiosInputDefinition , IDcsBiosCommand
+    public class FixedStepCommandDefinition : IDcsBiosInputDefinition, IDcsBiosCommand
     {
         private const string DEFAULT_COMMAND_DESCRIPTION = "switch to previous or next state";
 

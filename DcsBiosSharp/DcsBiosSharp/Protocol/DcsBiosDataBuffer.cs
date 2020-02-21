@@ -1,8 +1,6 @@
-﻿using DcsBiosSharp.Connection;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
+using DcsBiosSharp.Connection;
 
 namespace DcsBiosSharp.Protocol
 {
@@ -31,7 +29,7 @@ namespace DcsBiosSharp.Protocol
 
         public void OnExportDataReceived(object sender, DcsBiosExportDataReceivedEventArgs args)
         {
-            foreach(IDcsBiosExportData exportData in args.Data)
+            foreach (IDcsBiosExportData exportData in args.Data)
             {
                 HandleExportData(exportData);
             }

@@ -1,9 +1,7 @@
-﻿using DcsBiosSharp.Definition.Inputs;
-using DcsBiosSharp.Definition.Outputs;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using DcsBiosSharp.Definition.Inputs;
+using DcsBiosSharp.Definition.Outputs;
 
 namespace DcsBiosSharp.Definition
 {
@@ -28,7 +26,7 @@ namespace DcsBiosSharp.Definition
         {
             get; private set;
         }
-        
+
         public IReadOnlyList<IDcsBiosInputDefinition> InputDefinitions
         {
             get; private set;
@@ -48,7 +46,7 @@ namespace DcsBiosSharp.Definition
             InputDefinitions = inputDefs is IReadOnlyList<IDcsBiosInputDefinition> listy ? listy : inputDefs.ToList();
             OutputDefinitions = outputDefs is IReadOnlyList<IDcsBiosOutputDefinition> listy2 ? listy2 : outputDefs.ToList();
 
-            foreach(var outputDef in OutputDefinitions)
+            foreach (var outputDef in OutputDefinitions)
             {
                 outputDef.Instrument = this;
             }

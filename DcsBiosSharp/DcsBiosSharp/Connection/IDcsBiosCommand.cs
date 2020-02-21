@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DcsBiosSharp.Connection
+﻿namespace DcsBiosSharp.Connection
 {
     public interface IDcsBiosCommand
     {
         string Name
-        { 
-            get; 
+        {
+            get;
         }
 
         string Arguments

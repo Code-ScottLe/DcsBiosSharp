@@ -7,7 +7,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DcsBiosSharp", "DcsBiosShar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DcsBiosSharp.Tests", "DcsBiosSharp.Tests\DcsBiosSharp.Tests.csproj", "{ADB341AC-B93C-4CC8-B5C8-83B664EA8CEA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleDcsBiosClient", "SimpleDcsBiosClient\SimpleDcsBiosClient.csproj", "{7261B093-A2EB-4A0C-AD4D-83094FDD557D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleDcsBiosClient", "SimpleDcsBiosClient\SimpleDcsBiosClient.csproj", "{7261B093-A2EB-4A0C-AD4D-83094FDD557D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E036B21D-BE85-4450-AB6A-06729A5B3FA5}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
