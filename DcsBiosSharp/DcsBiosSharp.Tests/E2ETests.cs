@@ -29,7 +29,7 @@ namespace DcsBiosSharp.Tests
 
             // Assert
             var scratchPad1 = sampleModule.Instruments.FirstOrDefault(i => i.Identifier == "UFC_OPTION_DISPLAY_1");
-            Assert.AreEqual(expected: "GRCV", actual: scratchPad1.OutputDefinitions.FirstOrDefault().GetValueFromBuffer(buffer.Buffer));
+            Assert.AreEqual(expected: "GRCV", actual: scratchPad1.OutputDefinitions.FirstOrDefault().GetValueFromBuffer(buffer.Buffer as IReadOnlyList<byte>));
         }
 
         private IDcsBiosConnection GetMockedConnection()

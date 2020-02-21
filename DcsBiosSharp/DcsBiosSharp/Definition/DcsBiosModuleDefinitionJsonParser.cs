@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DcsBiosSharp.Definition
 {
-    public class DcsBiosModuleDefinitionJsonParser
+    public class DcsBiosModuleDefinitionJsonParser : IDcsBiosModuleDefinitionJsonParser
     {
         public DcsBiosModuleDefinitionJsonParser()
         {

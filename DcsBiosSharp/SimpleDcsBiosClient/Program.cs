@@ -43,7 +43,7 @@ namespace SimpleDcsBiosClient
                 var refresh = scratchPads.SelectMany(s => s.OutputDefinitions).Where(o => e.StartIndex <= o.Address && o.Address + o.MaxSize <= e.EndIndex);
                 foreach (var refreshOutput in refresh)
                 {
-                    string value = refreshOutput.GetValueFromBuffer(buffer.Buffer) as string;
+                    string value = refreshOutput.GetValueFromBuffer(buffer.Buffer as IReadOnlyList<byte>) as string;
                     Console.WriteLine($"{refreshOutput.Instrument.Identifier} : {value}");
                 }
                 if(refresh.Any())
