@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DcsBiosSharp.Definition
 {
-    public class ModuleDefinitionManager
+    public class ModuleDefinitionManager : IModuleDefinitionManager
     {
         public static readonly string DEFAULT_DCS_BIOS_MODULE_DEFINITION_LOCATION = Environment.ExpandEnvironmentVariables("%USERPROFILE%") + @"/AppData/Roaming/DCS-BIOS/control-reference-json/";
         public const string DEFAULT_MODULE_FOLDER_SEARCH_PATTERN = @"*.json";
@@ -27,11 +27,11 @@ namespace DcsBiosSharp.Definition
         }
 
         public ModuleDefinitionManager()
-            : this (DEFAULT_DCS_BIOS_MODULE_DEFINITION_LOCATION, new DcsBiosModuleDefinitionJsonParser())
+            : this(DEFAULT_DCS_BIOS_MODULE_DEFINITION_LOCATION, new DcsBiosModuleDefinitionJsonParser())
         {
         }
 
-        public ModuleDefinitionManager(string moduleDefinitionsLocation , IDcsBiosModuleDefinitionJsonParser parser)
+        public ModuleDefinitionManager(string moduleDefinitionsLocation, IDcsBiosModuleDefinitionJsonParser parser)
         {
             ModuleDefinitionLocation = moduleDefinitionsLocation;
             Parser = parser;
@@ -41,7 +41,7 @@ namespace DcsBiosSharp.Definition
         public async Task RefreshModuleAsync(string searchPattern = DEFAULT_MODULE_FOLDER_SEARCH_PATTERN)
         {
             DirectoryInfo info = new DirectoryInfo(ModuleDefinitionLocation);
-            if(!info.Exists)
+            if (!info.Exists)
             {
                 // should we throw?
                 return;
@@ -50,7 +50,7 @@ namespace DcsBiosSharp.Definition
             // look for all jsons
             FileInfo[] files = info.GetFiles(searchPattern);
 
-            foreach(var file in files)
+            foreach (var file in files)
             {
                 string moduleId = Path.GetFileNameWithoutExtension(file.FullName);
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DcsBiosSharp.Connection;
+using DcsBiosSharp.Definition;
 using DcsBiosSharp.Protocol;
 
 namespace DcsBiosSharp.Client
@@ -18,13 +19,20 @@ namespace DcsBiosSharp.Client
             get; private set;
         }
 
-        public DcsBiosClient(IDcsBiosConnection connection, IDcsBiosDataBuffer dataBuffer)
+        public IModuleDefinitionManager ModuleManager
+        {
+            get; private set;
+        }
+
+        public DcsBiosClient(IDcsBiosConnection connection, IDcsBiosDataBuffer dataBuffer, IModuleDefinitionManager moduleManager)
         {
             Connection = connection;
             Connection.ExportDataReceived += OnConnectionReceivedExportData;
 
             DataBuffer = dataBuffer;
             DataBuffer.BufferUpdated += OnBufferUpdated;
+
+            ModuleManager = moduleManager;
         }
 
         private void OnBufferUpdated(object sender, DcsBiosBufferUpdatedEventArgs e)
