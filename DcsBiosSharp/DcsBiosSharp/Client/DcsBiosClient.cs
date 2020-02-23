@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using DcsBiosSharp.Connection;
 using DcsBiosSharp.Definition;
+using DcsBiosSharp.Definition.Outputs;
 using DcsBiosSharp.Protocol;
 
 namespace DcsBiosSharp.Client
@@ -24,6 +26,8 @@ namespace DcsBiosSharp.Client
             get; private set;
         }
 
+        public event EventHandler<DcsBioscClientOutputsChangedEventArgs> OutputsChanged;
+
         public DcsBiosClient(IDcsBiosConnection connection, IDcsBiosDataBuffer dataBuffer, IModuleDefinitionManager moduleManager)
         {
             Connection = connection;
@@ -37,7 +41,10 @@ namespace DcsBiosSharp.Client
 
         private void OnBufferUpdated(object sender, DcsBiosBufferUpdatedEventArgs e)
         {
-            
+            IEnumerable<IDcsBiosOutputDefinition> outputs = ModuleManager.Modules.SelectMany(m => m.Instruments)
+                .SelectMany(i => i.OutputDefinitions).Where(o => e.StartIndex <= o.Address && o.Address + o.MaxSize <= e.EndIndex).Distinct();
+
+            OutputsChanged?.Invoke(this, new DcsBioscClientOutputsChangedEventArgs(DataBuffer, outputs));
         }
 
         private void OnConnectionReceivedExportData(object sender, DcsBiosExportDataReceivedEventArgs e)
