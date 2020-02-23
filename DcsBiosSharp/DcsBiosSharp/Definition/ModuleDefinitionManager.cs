@@ -54,7 +54,7 @@ namespace DcsBiosSharp.Definition
             Modules = new List<IModule>();
         }
 
-        public async Task RefreshModuleAsync(string searchPatternOverride = DEFAULT_MODULE_FOLDER_SEARCH_PATTERN)
+        public async Task RefreshModuleAsync(string searchPatternOverride = default)
         {
             DirectoryInfo info = new DirectoryInfo(ModuleDefinitionLocation);
             if (!info.Exists)
