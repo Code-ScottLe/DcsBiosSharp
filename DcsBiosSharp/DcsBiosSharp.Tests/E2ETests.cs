@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using DcsBiosSharp.Client;
 using DcsBiosSharp.Connection;
 using DcsBiosSharp.Definition;
+using DcsBiosSharp.Definition.Outputs;
 using DcsBiosSharp.Protocol;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -15,21 +18,33 @@ namespace DcsBiosSharp.Tests
     public class E2ETests
     {
         [TestMethod]
-        public void E2EDataExportScenarioTest_WithValidExportBuffer_UpdateAllOutputProperly()
+        public async Task E2EDataExportScenarioTest_WithValidExportBuffer_UpdateAllOutputProperly()
         {
             // Arrange
             var buffer = new DcsBiosDataBuffer();
             var connection = GetMockedConnection();
-            var sampleModule = GetSampleModule();
+            var manager = new ModuleDefinitionManager("./Assets/");
 
-            connection.ExportDataReceived += buffer.OnExportDataReceived;
+            string finalOption1Value = null;
 
             // Act
-            connection.Start();
+            var client = new DcsBiosClient(connection, buffer, manager);
+            await client.RefreshModuleAsync();
+            client.OutputsChanged += (s, e) =>
+            {
+                IDcsBiosOutputDefinition ufcOption1 = e.ChangedOutputs.FirstOrDefault(o => o.Instrument.Identifier == "UFC_OPTION_DISPLAY_1");
+                if (ufcOption1 != null)
+                {
+                    finalOption1Value = ufcOption1.GetValueFromBuffer(e.Buffer.Buffer as IReadOnlyList<byte>) as string;
+                }
+            };
+
+            client.Start();
 
             // Assert
-            var scratchPad1 = sampleModule.Instruments.FirstOrDefault(i => i.Identifier == "UFC_OPTION_DISPLAY_1");
-            Assert.AreEqual(expected: "GRCV", actual: scratchPad1.OutputDefinitions.FirstOrDefault().GetValueFromBuffer(buffer.Buffer as IReadOnlyList<byte>));
+            // Wait for all of them to roll in.
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            Assert.AreEqual(expected: "GRCV", actual: finalOption1Value);
         }
 
         private IDcsBiosConnection GetMockedConnection()

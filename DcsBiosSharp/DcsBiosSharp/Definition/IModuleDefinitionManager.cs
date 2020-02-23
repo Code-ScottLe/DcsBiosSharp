@@ -11,6 +11,6 @@ namespace DcsBiosSharp.Definition
 
         IDcsBiosModuleDefinitionJsonParser Parser { get; }
 
-        Task RefreshModuleAsync(string searchPattern = "*.json");
+        Task RefreshModuleAsync(string searchPatternOverride = "*.json");
     }
 }

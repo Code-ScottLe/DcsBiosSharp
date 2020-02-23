@@ -26,19 +26,35 @@ namespace DcsBiosSharp.Definition
             get; private set;
         }
 
+        public string SearchPattern
+        {
+            get; set;
+        }
+
         public ModuleDefinitionManager()
-            : this(DEFAULT_DCS_BIOS_MODULE_DEFINITION_LOCATION, new DcsBiosModuleDefinitionJsonParser())
+            : this(DEFAULT_DCS_BIOS_MODULE_DEFINITION_LOCATION, DEFAULT_MODULE_FOLDER_SEARCH_PATTERN)
         {
         }
 
-        public ModuleDefinitionManager(string moduleDefinitionsLocation, IDcsBiosModuleDefinitionJsonParser parser)
+        public ModuleDefinitionManager(string moduleDefinitionLocation)
+            : this (moduleDefinitionLocation, DEFAULT_MODULE_FOLDER_SEARCH_PATTERN)
+        {
+        }
+
+        public ModuleDefinitionManager(string moduleDefinitionLocation, string searchPattern)
+            : this(moduleDefinitionLocation, searchPattern, new DcsBiosModuleDefinitionJsonParser())
+        {
+        }
+
+        public ModuleDefinitionManager(string moduleDefinitionsLocation, string searchPattern, IDcsBiosModuleDefinitionJsonParser parser)
         {
             ModuleDefinitionLocation = moduleDefinitionsLocation;
             Parser = parser;
+            SearchPattern = searchPattern;
             Modules = new List<IModule>();
         }
 
-        public async Task RefreshModuleAsync(string searchPattern = DEFAULT_MODULE_FOLDER_SEARCH_PATTERN)
+        public async Task RefreshModuleAsync(string searchPatternOverride = DEFAULT_MODULE_FOLDER_SEARCH_PATTERN)
         {
             DirectoryInfo info = new DirectoryInfo(ModuleDefinitionLocation);
             if (!info.Exists)
@@ -48,7 +64,7 @@ namespace DcsBiosSharp.Definition
             }
 
             // look for all jsons
-            FileInfo[] files = info.GetFiles(searchPattern);
+            FileInfo[] files = info.GetFiles(searchPatternOverride ?? SearchPattern);
 
             foreach (var file in files)
             {
