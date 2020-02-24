@@ -9,7 +9,7 @@ namespace DcsBiosSharp.Connection
             get; set;
         }
 
-        public string Name
+        public string CommandIdentifier
         {
             get; set;
         }
@@ -19,11 +19,16 @@ namespace DcsBiosSharp.Connection
             get; set;
         }
 
-        public DcsBiosCommand(string name, string arguments = default, IDcsBiosInputDefinition definition = default)
+        public DcsBiosCommand(IDcsBiosInputDefinition definition, string arguments)
+            : this (definition.Instrument.Identifier, arguments)
         {
-            Name = name;
-            Arguments = arguments;
             InputDef = definition;
+        }
+
+        public DcsBiosCommand(string commandIdentifier, string arguments)
+        {
+            CommandIdentifier = commandIdentifier;
+            Arguments = arguments;
         }
     }
 }

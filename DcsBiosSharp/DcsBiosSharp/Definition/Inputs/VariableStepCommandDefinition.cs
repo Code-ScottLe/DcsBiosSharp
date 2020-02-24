@@ -31,15 +31,10 @@ namespace DcsBiosSharp.Definition.Inputs
             get; set;
         }
 
-        public VariableStepCommandDefinition(double maxValue, double suggestedSteps, string description = default(string))
-            : this(description)
+        public VariableStepCommandDefinition(IModuleInstrument moduleInstrument, double maxValue, double suggestedSteps, string description = default(string))
         {
             MaxValue = maxValue;
             SuggestedSteps = suggestedSteps;
-        }
-
-        protected VariableStepCommandDefinition(string description = default(string))
-        {
             Description = description;
         }
 

@@ -30,8 +30,9 @@ namespace DcsBiosSharp.Definition.Outputs
             get; set;
         }
 
-        public BaseOutputDefinition(uint address, string description = default(string), string suffix = default(string))
+        public BaseOutputDefinition(IModuleInstrument moduleInstrument, uint address, string description = default(string), string suffix = default(string))
         {
+            Instrument = moduleInstrument;
             Address = address;
             Description = description;
             Suffix = suffix;

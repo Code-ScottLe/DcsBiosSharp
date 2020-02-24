@@ -24,23 +24,24 @@ namespace DcsBiosSharp.Definition.Inputs
             get; set;
         }
 
-        protected SetStateCommandDefinition(string description)
+        protected SetStateCommandDefinition(IModuleInstrument instrument, string description)
         {
+            Instrument = instrument;
             Description = description;
         }
 
         public abstract IDcsBiosCommand CreateCommand(params object[] args);
     }
 
-    public class SetState<T> : SetStateCommandDefinition where T : IComparable
+    public class SetStateCommandDefinition<T> : SetStateCommandDefinition where T : IComparable
     {
         public T MaxValue
         {
             get; private set;
         }
 
-        public SetState(T maxValue, string description)
-            : base(description)
+        public SetStateCommandDefinition(IModuleInstrument instrument, T maxValue, string description)
+            : base(instrument, description)
         {
             MaxValue = maxValue;
         }
@@ -63,7 +64,7 @@ namespace DcsBiosSharp.Definition.Inputs
             }
             else
             {
-                var instance = new DcsBiosCommand(DEFAULT_COMMAND_INTERFACE_NAME, value.ToString(), this);
+                var instance = new DcsBiosCommand(this, value.ToString());
                 return instance;
             }
         }

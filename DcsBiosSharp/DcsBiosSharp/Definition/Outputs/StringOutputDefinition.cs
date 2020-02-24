@@ -17,8 +17,8 @@ namespace DcsBiosSharp.Definition.Outputs
             get => MaxLength;
         }
 
-        public StringOutputDefinition(uint address, int maxLength, string description = default, string suffix = default)
-            : base(address, description, suffix)
+        public StringOutputDefinition(IModuleInstrument moduleInstrument, uint address, int maxLength, string description = default, string suffix = default)
+            : base(moduleInstrument, address, description, suffix)
         {
             MaxLength = maxLength;
         }

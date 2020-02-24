@@ -7,6 +7,9 @@ namespace DcsBiosSharp.Definition
 {
     public class DcsBiosModuleInstrument : IModuleInstrument
     {
+        private List<IDcsBiosOutputDefinition> _outputDefinitions;
+        private List<IDcsBiosInputDefinition> _inputDefinitions;
+
         public string Category
         {
             get; private set;
@@ -29,32 +32,42 @@ namespace DcsBiosSharp.Definition
 
         public IReadOnlyList<IDcsBiosInputDefinition> InputDefinitions
         {
-            get; private set;
+            get => _inputDefinitions;
         }
 
         public IReadOnlyList<IDcsBiosOutputDefinition> OutputDefinitions
         {
-            get; private set;
+            get => _outputDefinitions;
         }
 
-        public DcsBiosModuleInstrument(string category, string controlType, string description, string identifier, IEnumerable<IDcsBiosInputDefinition> inputDefs, IEnumerable<IDcsBiosOutputDefinition> outputDefs)
+        public DcsBiosModuleInstrument(string category, string controlType, string description, string identifier)
         {
             Category = category;
             ControlType = controlType;
             Description = description;
             Identifier = identifier;
-            InputDefinitions = inputDefs is IReadOnlyList<IDcsBiosInputDefinition> listy ? listy : inputDefs.ToList();
-            OutputDefinitions = outputDefs is IReadOnlyList<IDcsBiosOutputDefinition> listy2 ? listy2 : outputDefs.ToList();
+            _inputDefinitions = new List<IDcsBiosInputDefinition>();
+            _outputDefinitions = new List<IDcsBiosOutputDefinition>();
+        }
 
-            foreach (var outputDef in OutputDefinitions)
-            {
-                outputDef.Instrument = this;
-            }
+        public void AddInput(IDcsBiosInputDefinition inputDef)
+        {
+            _inputDefinitions.Add(inputDef);
+        }
 
-            foreach (var inputDef in InputDefinitions)
-            {
-                inputDef.Instrument = this;
-            }
+        public void AddInputs(IEnumerable<IDcsBiosInputDefinition> inputDefs)
+        {
+            _inputDefinitions.AddRange(inputDefs);
+        }
+
+        public void AddOutput(IDcsBiosOutputDefinition outputDef)
+        {
+            _outputDefinitions.Add(outputDef);
+        }
+
+        public void AddOutputs(IEnumerable<IDcsBiosOutputDefinition> outputDefs)
+        {
+            _outputDefinitions.AddRange(outputDefs);
         }
     }
 }

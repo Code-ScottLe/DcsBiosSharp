@@ -1,8 +1,10 @@
-﻿using DcsBiosSharp.Connection;
+﻿using System;
+using System.Linq;
+using DcsBiosSharp.Connection;
 
 namespace DcsBiosSharp.Definition.Inputs
 {
-    public class FixedStepCommandDefinition : IDcsBiosInputDefinition, IDcsBiosCommand
+    public class FixedStepCommandDefinition : IDcsBiosInputDefinition
     {
         private const string DEFAULT_COMMAND_DESCRIPTION = "switch to previous or next state";
 
@@ -27,19 +29,33 @@ namespace DcsBiosSharp.Definition.Inputs
             get; set;
         }
 
-        public FixedStepCommandDefinition()
-            : this(DEFAULT_COMMAND_DESCRIPTION)
+        public FixedStepCommandDefinition(IModuleInstrument instrument)
+            : this(instrument, DEFAULT_COMMAND_DESCRIPTION)
         {
         }
 
-        public FixedStepCommandDefinition(string description)
+        public FixedStepCommandDefinition(IModuleInstrument instrument, string description)
         {
+            Instrument = instrument;
             Description = description;
         }
 
         public IDcsBiosCommand CreateCommand(params object[] args)
         {
-            return this;
+            if (!args.Any())
+            {
+                throw new ArgumentNullException(paramName: nameof(args));
+            }
+
+            switch (args.First())
+            {
+                case "INC":
+                    return new DcsBiosCommand(this, "INC");
+                case "DEC":
+                    return new DcsBiosCommand(this, "DEC");
+                default:
+                    throw new ArgumentException(message: "Fixed Step accepts only INC or DEC as input");
+            }
         }
     }
 }

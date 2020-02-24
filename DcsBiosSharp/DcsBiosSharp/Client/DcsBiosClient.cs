@@ -34,7 +34,7 @@ namespace DcsBiosSharp.Client
 
         public ObservableCollection<DcsBiosOutput> Outputs
         {
-            get; set;
+            get; private set;
         }
 
         public event EventHandler<DcsBioscClientOutputsChangedEventArgs> OutputsChanged;
