@@ -13,7 +13,7 @@ namespace DcsBiosSharp.Definition.Tests
         public async Task RefreshModuleAsyncTest_WithDefaultFolder_HasNonZeroModules()
         {
             // Arrange
-            var manager = new ModuleDefinitionManager();
+            var manager = new ModuleDefinitionManager("./Assets");
 
             // Act
             await manager.RefreshModuleAsync();
