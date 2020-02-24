@@ -51,7 +51,7 @@ namespace SimpleDcsBiosClient
                 }
             };
 
-            client.Start();
+            await client.StartAsync();
 
             Console.WriteLine("Waiting for DCS... (type any key to quit)");
             Console.ReadLine();

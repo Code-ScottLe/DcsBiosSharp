@@ -29,7 +29,6 @@ namespace DcsBiosSharp.Tests
 
             // Act
             var client = new DcsBiosClient(connection, buffer, manager);
-            await client.RefreshModuleAsync();
             client.OutputsChanged += (s, e) =>
             {
                 IDcsBiosOutputDefinition ufcOption1 = e.ChangedOutputs.FirstOrDefault(o => o.Instrument.Identifier == "UFC_OPTION_DISPLAY_1");
@@ -39,7 +38,7 @@ namespace DcsBiosSharp.Tests
                 }
             };
 
-            client.Start();
+            await client.StartAsync();
 
             // Assert
             // Wait for all of them to roll in.

@@ -46,13 +46,9 @@ namespace DcsBiosSharp.Client
             ModuleManager = moduleManager;
         }
 
-        public Task RefreshModuleAsync()
+        public async Task StartAsync()
         {
-            return ModuleManager.RefreshModuleAsync();
-        }
-
-        public void Start()
-        {
+            await ModuleManager.RefreshModuleAsync();
             Connection.Start();
         }
 
