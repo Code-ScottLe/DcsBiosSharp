@@ -33,11 +33,23 @@ namespace DcsBiosSharp.Definition.Outputs
             MaxValue = maxValue;
         }
 
-        public override int GetValueFromBuffer(IReadOnlyList<byte> buffer)
+        public override int GetValueFromBuffer(IList<byte> buffer)
         {
             // Flip the byte around as it is litte endian
             ushort raw = BitConverter.ToUInt16(buffer.Skip((int)Address).Take(2).Reverse().ToArray(), 0);
 
+            return ProcessRawNumber(raw);
+        }
+
+        public override int GetValueFromMemory(Memory<byte> sliced)
+        {
+            ushort raw = BitConverter.ToUInt16(sliced.ToArray().Reverse().ToArray(), 0);
+
+            return ProcessRawNumber(raw);
+        }
+
+        private int ProcessRawNumber(ushort raw)
+        {
             // masking.
             int masked = (raw & Mask) >> ShiftBy;
 

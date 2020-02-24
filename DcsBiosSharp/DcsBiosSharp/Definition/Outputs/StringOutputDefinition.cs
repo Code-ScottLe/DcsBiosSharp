@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -22,9 +23,14 @@ namespace DcsBiosSharp.Definition.Outputs
             MaxLength = maxLength;
         }
 
-        public override string GetValueFromBuffer(IReadOnlyList<byte> buffer)
+        public override string GetValueFromBuffer(IList<byte> buffer)
         {
             return Encoding.ASCII.GetString(buffer.Skip((int)Address).Take(MaxLength).ToArray());
+        }
+
+        public override string GetValueFromMemory(Memory<byte> sliced)
+        {
+            return Encoding.ASCII.GetString(sliced.ToArray());
         }
     }
 }

@@ -35,7 +35,7 @@ namespace DcsBiosSharp.Tests
                 IDcsBiosOutputDefinition ufcOption1 = e.ChangedOutputs.FirstOrDefault(o => o.Instrument.Identifier == "UFC_OPTION_DISPLAY_1");
                 if (ufcOption1 != null)
                 {
-                    finalOption1Value = ufcOption1.GetValueFromBuffer(e.Buffer.Buffer as IReadOnlyList<byte>) as string;
+                    finalOption1Value = ufcOption1.GetValueFromBuffer(e.Buffer.Buffer) as string;
                 }
             };
 

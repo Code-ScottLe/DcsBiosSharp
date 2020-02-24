@@ -42,7 +42,7 @@ namespace SimpleDcsBiosClient
 
                 foreach (var refreshOutput in refresh)
                 {
-                    string value = refreshOutput.GetValueFromBuffer(e.Buffer as IReadOnlyList<byte>) as string;
+                    string value = refreshOutput.GetValueFromBuffer(e.Buffer.Buffer) as string;
                     Console.WriteLine($"{refreshOutput.Instrument.Identifier} : {value}");
                 }
                 if (refresh.Any())
