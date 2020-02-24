@@ -30,19 +30,26 @@ namespace DcsBiosSharp.Client
             dataBuffer.BufferUpdated += OnBufferUpdated;
         }
 
-        private void OnBufferUpdated(object sender, DcsBiosBufferUpdatedEventArgs e)
+        protected virtual void OnBufferUpdated(object sender, DcsBiosBufferUpdatedEventArgs e)
         {
             // check if the update is for us
             if (e.StartIndex <= Definition.Address && Definition.Address <= e.EndIndex)
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+                OnPropertyChanged(nameof(Value));
             }
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(propertyName)));
         }
     }
 
-    public class DcsBiosOutput<T> :DcsBiosOutput
+    public class DcsBiosOutput<T> :DcsBiosOutput where T:IEquatable<T>
     {
-        internal DcsBiosOutput(IDcsBiosOutputDefinition<T> definition, IDcsBiosDataBuffer dataBuffer) 
+        private T _cached;
+
+        public DcsBiosOutput(IDcsBiosOutputDefinition<T> definition, IDcsBiosDataBuffer dataBuffer) 
             : base(definition, dataBuffer)
         {
         }
@@ -54,8 +61,24 @@ namespace DcsBiosSharp.Client
 
         public new T Value
         {
-            get => Definition.GetValueFromMemory(_mem);
+            get => _cached;
+            private set
+            {
+                if (_cached == null || (_cached as IEquatable<T>).Equals(value as IEquatable<T>) == false)
+                {
+                    _cached = value;
+                    OnPropertyChanged(nameof(Value));
+                }
+            }
         }
 
+        protected override void OnBufferUpdated(object sender, DcsBiosBufferUpdatedEventArgs e)
+        {
+            // check if the update is for us
+            if (e.StartIndex <= Definition.Address && Definition.Address <= e.EndIndex)
+            {
+                Value = Definition.GetValueFromMemory(_mem);
+            }
+        }
     }
 }

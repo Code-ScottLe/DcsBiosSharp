@@ -33,6 +33,8 @@ namespace DcsBiosSharp.Connection
             get; set;
         }
 
+        public event EventHandler<byte[]> RawBufferReceived;
+
         public event EventHandler<DcsBiosExportDataReceivedEventArgs> ExportDataReceived;
 
         public DcsBiosUdpConnection()
@@ -98,6 +100,7 @@ namespace DcsBiosSharp.Connection
                     // The lua will send an update roughly 30 times per second
                     UdpReceiveResult result = await _exportListener.ReceiveAsync().ConfigureAwait(false);
                     _internalBuffer.Enqueue(result.Buffer);
+                    RawBufferReceived?.Invoke(this, result.Buffer);
                     if (!_signalToken.Task.IsCompleted)
                     {
                         _signalToken.SetResult(true);

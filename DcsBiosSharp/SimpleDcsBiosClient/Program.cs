@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DcsBiosSharp.Client;
@@ -13,12 +14,32 @@ namespace SimpleDcsBiosClient
 {
     class Program
     {
+        private static MemoryStream memStream;
+        private static BinaryWriter writer;
+
         static async Task Main(string[] args)
         {
             int tick = 0;
             int counter = 0;
 
+            int sizeCounter = 0;
+
+            bool exportBuffer = true;
+
             DcsBiosClient client = new DcsBiosClient();
+
+            if (exportBuffer)
+            {
+                memStream = new MemoryStream();
+                writer = new BinaryWriter(memStream);
+                client.Connection.RawBufferReceived += (s, e) =>
+                {
+                    // export raw buffer.
+                    writer.Write(e);
+                    sizeCounter += e.Length;
+                };
+            }
+
             // Just to see if DCS is still exporting.
             client.Connection.ExportDataReceived += (s, e) =>
             {
@@ -44,6 +65,36 @@ namespace SimpleDcsBiosClient
 
             Console.WriteLine("Waiting for DCS... (type any key to quit)");
             Console.ReadLine();
+
+            if (exportBuffer)
+            {
+                // Clean up and flush to file.
+                writer.Flush();
+
+                using (FileStream streamed = new FileStream("buffer.buff", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                using (BinaryWriter fileWriter = new BinaryWriter(streamed))
+                {
+                    fileWriter.Write(memStream.GetBuffer().Take(sizeCounter).ToArray());
+                    fileWriter.Flush();
+                }
+
+                using (FileStream streamDecoded = new FileStream("buffer.bufferText", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                using (StreamWriter fileWriter = new StreamWriter(streamDecoded))
+                {
+                    StringBuilder builder = new StringBuilder();
+                    foreach(byte b in memStream.GetBuffer().Take(sizeCounter).ToArray())
+                    {
+                        builder.Append("0x");
+                        builder.Append(b.ToString("x2"));
+                        builder.Append(' ');
+                    }
+
+                    fileWriter.Write(builder.ToString());
+                }
+
+                writer.Dispose();
+                memStream.Dispose();
+            }
         }
 
         private static void OutputChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
