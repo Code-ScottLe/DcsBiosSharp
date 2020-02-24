@@ -19,7 +19,6 @@ namespace SimpleDcsBiosClient
             int counter = 0;
 
             DcsBiosClient client = new DcsBiosClient();
-
             // Just to see if DCS is still exporting.
             client.Connection.ExportDataReceived += (s, e) =>
             {
@@ -35,26 +34,21 @@ namespace SimpleDcsBiosClient
                 }
                 
             };
-
-            client.OutputsChanged += (s, e) =>
-            {
-                var refresh = e.ChangedOutputs.Where(o => o.Instrument.Identifier.Contains("UFC_OPTION_DISPLAY_"));
-
-                foreach (var refreshOutput in refresh)
-                {
-                    string value = refreshOutput.GetValueFromBuffer(e.Buffer.Buffer) as string;
-                    Console.WriteLine($"{refreshOutput.Instrument.Identifier} : {value}");
-                }
-                if (refresh.Any())
-                {
-                    Console.WriteLine();
-                }
-            };
-
             await client.StartAsync();
+
+            IEnumerable<DcsBiosOutput> outputs = client.Outputs.Where(o => o.Definition.Instrument.Identifier.Contains("UFC_OPTION_DISPLAY_"));
+            foreach(var output in outputs)
+            {
+                output.PropertyChanged += OutputChanged;
+            }
 
             Console.WriteLine("Waiting for DCS... (type any key to quit)");
             Console.ReadLine();
+        }
+
+        private static void OutputChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            Console.WriteLine($"{(sender as DcsBiosOutput).Definition.Instrument.Identifier} : {(sender as DcsBiosOutput).Value}");
         }
     }
 }
