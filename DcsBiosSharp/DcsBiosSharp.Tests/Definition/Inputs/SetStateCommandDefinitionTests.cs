@@ -8,7 +8,7 @@ using Moq;
 namespace DcsBiosSharp.Definition.Inputs.Tests
 {
     [TestClass]
-    public class SetStateOutputDefinition
+    public class SetStateCommandDefinitionTests
     {
         [DataTestMethod]
         [DataRow(1)]
