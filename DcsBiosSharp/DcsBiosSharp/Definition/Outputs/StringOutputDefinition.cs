@@ -25,7 +25,14 @@ namespace DcsBiosSharp.Definition.Outputs
 
         public override string GetValueFromBuffer(IList<byte> buffer)
         {
-            return Encoding.ASCII.GetString(buffer.Skip((int)Address).Take(MaxLength).ToArray());
+            if (buffer is byte[] arraybyte)
+            {
+                return GetValueFromMemory(new Memory<byte>(arraybyte, (int)Address, MaxSize));
+            }
+            else
+            {
+                return Encoding.ASCII.GetString(buffer.Skip((int)Address).Take(MaxLength).ToArray());
+            }
         }
 
         public override string GetValueFromMemory(Memory<byte> sliced)

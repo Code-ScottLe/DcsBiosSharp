@@ -24,26 +24,18 @@ namespace DcsBiosSharp.Tests
             var buffer = new DcsBiosDataBuffer();
             var connection = GetMockedConnection();
             var manager = new ModuleDefinitionManager("./Assets/");
-
-            string finalOption1Value = null;
+            await manager.RefreshModuleAsync();
 
             // Act
             var client = new DcsBiosClient(connection, buffer, manager);
-            client.OutputsChanged += (s, e) =>
-            {
-                IDcsBiosOutputDefinition ufcOption1 = e.ChangedOutputs.FirstOrDefault(o => o.Instrument.Identifier == "UFC_OPTION_DISPLAY_1");
-                if (ufcOption1 != null)
-                {
-                    finalOption1Value = ufcOption1.GetValueFromBuffer(e.Buffer.Buffer) as string;
-                }
-            };
-
             await client.StartAsync();
+
+            DcsBiosOutput<string> output = client.Outputs.FirstOrDefault(o => o.Definition.Instrument.Identifier == "UFC_OPTION_DISPLAY_1") as DcsBiosOutput<string>;
 
             // Assert
             // Wait for all of them to roll in.
             await Task.Delay(TimeSpan.FromSeconds(2));
-            Assert.AreEqual(expected: "GRCV", actual: finalOption1Value);
+            Assert.AreEqual(expected: "GRCV", actual: output.Value);
         }
 
         private IDcsBiosConnection GetMockedConnection()

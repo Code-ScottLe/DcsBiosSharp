@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -37,7 +38,7 @@ namespace DcsBiosSharp.Definition
         }
 
         public ModuleDefinitionManager(string moduleDefinitionLocation)
-            : this (moduleDefinitionLocation, DEFAULT_MODULE_FOLDER_SEARCH_PATTERN)
+            : this(moduleDefinitionLocation, DEFAULT_MODULE_FOLDER_SEARCH_PATTERN)
         {
         }
 
@@ -66,7 +67,7 @@ namespace DcsBiosSharp.Definition
             // look for all jsons
             FileInfo[] files = info.GetFiles(searchPatternOverride ?? SearchPattern);
 
-            foreach (var file in files)
+            foreach (var file in files.Where(i => !Modules.Any(m => m.Name == Path.GetFileNameWithoutExtension(i.FullName))))
             {
                 string moduleId = Path.GetFileNameWithoutExtension(file.FullName);
 
@@ -77,6 +78,8 @@ namespace DcsBiosSharp.Definition
                     Modules.Add(module);
                 }
             }
+
+
         }
     }
 }

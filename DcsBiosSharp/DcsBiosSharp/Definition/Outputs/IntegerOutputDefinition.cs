@@ -35,10 +35,18 @@ namespace DcsBiosSharp.Definition.Outputs
 
         public override int GetValueFromBuffer(IList<byte> buffer)
         {
-            // Flip the byte around as it is litte endian
-            ushort raw = BitConverter.ToUInt16(buffer.Skip((int)Address).Take(2).Reverse().ToArray(), 0);
+            if (buffer is byte[] arraybyte)
+            {
+                return GetValueFromMemory(new Memory<byte>(arraybyte, (int)Address, MaxSize));
+            }
+            else
+            {
+                // Flip the byte around as it is litte endian
+                ushort raw = BitConverter.ToUInt16(buffer.Skip((int)Address).Take(2).Reverse().ToArray(), 0);
 
-            return ProcessRawNumber(raw);
+                return ProcessRawNumber(raw);
+            }
+            
         }
 
         public override int GetValueFromMemory(Memory<byte> sliced)

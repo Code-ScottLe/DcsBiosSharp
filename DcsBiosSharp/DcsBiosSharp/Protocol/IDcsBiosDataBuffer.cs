@@ -7,7 +7,7 @@ namespace DcsBiosSharp.Protocol
 {
     public interface IDcsBiosDataBuffer
     {
-        IList<byte> Buffer
+        byte[] Buffer
         {
             get;
         }

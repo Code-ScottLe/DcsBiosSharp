@@ -23,25 +23,30 @@ namespace DcsBiosSharp.Client
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        internal DcsBiosOutput(IDcsBiosOutputDefinition definition, byte[] buffer)
-            : this (definition, new Memory<byte>(buffer, (int)definition.Address, (int)definition.MaxSize))
-        {
-        }
-
-        internal DcsBiosOutput(IDcsBiosOutputDefinition definition, Memory<byte> section)
+        internal DcsBiosOutput(IDcsBiosOutputDefinition definition, IDcsBiosDataBuffer dataBuffer)
         {
             Definition = definition;
-            _mem = section;
+            _mem = new Memory<byte>(dataBuffer.Buffer, (int)Definition.Address, Definition.MaxSize);
+            dataBuffer.BufferUpdated += OnBufferUpdated;
         }
 
-        internal void OnRawBufferChanged()
+        private void OnBufferUpdated(object sender, DcsBiosBufferUpdatedEventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+            // check if the update is for us
+            if (e.StartIndex <= Definition.Address && Definition.Address <= e.EndIndex)
+            {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
+            }
         }
     }
 
     public class DcsBiosOutput<T> :DcsBiosOutput
     {
+        internal DcsBiosOutput(IDcsBiosOutputDefinition<T> definition, IDcsBiosDataBuffer dataBuffer) 
+            : base(definition, dataBuffer)
+        {
+        }
+
         public new IDcsBiosOutputDefinition<T> Definition
         {
             get => base.Definition as IDcsBiosOutputDefinition<T>;
@@ -52,15 +57,5 @@ namespace DcsBiosSharp.Client
             get => Definition.GetValueFromMemory(_mem);
         }
 
-
-        internal DcsBiosOutput(IDcsBiosOutputDefinition<T> definition, byte[] buffer)
-            : base(definition, buffer)
-        {
-        }
-
-        internal DcsBiosOutput(IDcsBiosOutputDefinition<T> definition, Memory<byte> section)
-            : base (definition, section)
-        {
-        }
     }
 }

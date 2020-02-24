@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +15,8 @@ namespace DcsBiosSharp.Client
 {
     public class DcsBiosClient
     {
+        private bool _isStarted;
+
         public IDcsBiosConnection Connection
         {
             get; private set;
@@ -26,6 +30,11 @@ namespace DcsBiosSharp.Client
         public IModuleDefinitionManager ModuleManager
         {
             get; private set;
+        }
+
+        public ObservableCollection<DcsBiosOutput> Outputs
+        {
+            get; set;
         }
 
         public event EventHandler<DcsBioscClientOutputsChangedEventArgs> OutputsChanged;
@@ -44,12 +53,41 @@ namespace DcsBiosSharp.Client
             DataBuffer.BufferUpdated += OnBufferUpdated;
 
             ModuleManager = moduleManager;
+
+            _isStarted = false;
+
+            Outputs = new ObservableCollection<DcsBiosOutput>();
         }
 
         public async Task StartAsync()
         {
             await ModuleManager.RefreshModuleAsync();
-            Connection.Start();
+
+            // Get all of the outputs.
+            foreach(IDcsBiosOutputDefinition defs in ModuleManager.Modules.SelectMany(m => m.Instruments).SelectMany(i => i.OutputDefinitions).Where(d => !Outputs.Any(o => o.Definition.Address == d.Address)))
+            {
+                DcsBiosOutput output = null;
+                if (defs is IDcsBiosOutputDefinition<int> intDef)
+                {
+                    output = new DcsBiosOutput<int>(intDef, DataBuffer);
+                }
+                else if (defs is IDcsBiosOutputDefinition<string> stringDef)
+                {
+                    output = new DcsBiosOutput<string>(stringDef, DataBuffer);
+                }
+
+                if (output != null)
+                {
+                    Outputs.Add(output);
+                }
+            }
+
+            if (!_isStarted)
+            {
+                Connection.Start();
+                _isStarted = true;
+            }
+            
         }
 
         public Task SendCommandAsync(IDcsBiosInputDefinition inputDef, string args)
