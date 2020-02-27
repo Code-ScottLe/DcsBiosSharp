@@ -24,7 +24,7 @@ namespace SimpleDcsBiosClient
 
             int sizeCounter = 0;
 
-            bool exportBuffer = true;
+            bool exportBuffer = false;
 
             DcsBiosClient client = new DcsBiosClient();
 
