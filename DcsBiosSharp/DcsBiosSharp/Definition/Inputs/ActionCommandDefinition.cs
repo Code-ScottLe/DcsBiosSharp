@@ -25,15 +25,16 @@ namespace DcsBiosSharp.Definition.Inputs
             get; set;
         }
 
-        public ActionCommandDefinition(string actionArgs, string description = default(string))
+        public ActionCommandDefinition(IModuleInstrument instrument, string actionArgs, string description = default(string))
         {
+            Instrument = instrument;
             Description = description;
             ActionArgs = actionArgs;
         }
 
         public IDcsBiosCommand CreateCommand(params object[] args)
         {
-            var command = new DcsBiosCommand(DEFAULT_COMMAND_INTERFACE_NAME, ActionArgs, this);
+            var command = new DcsBiosCommand(this, ActionArgs);
 
             return command;
         }

@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using DcsBiosSharp.Client;
 using DcsBiosSharp.Connection;
 using DcsBiosSharp.Definition;
+using DcsBiosSharp.Definition.Outputs;
 using DcsBiosSharp.Protocol;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -15,21 +20,52 @@ namespace DcsBiosSharp.Tests
     public class E2ETests
     {
         [TestMethod]
-        public void E2EDataExportScenarioTest_WithValidExportBuffer_UpdateAllOutputProperly()
+        public async Task E2EDataExportScenarioTest_WithValidExportBuffer_UpdateAllOutputProperly()
         {
             // Arrange
             var buffer = new DcsBiosDataBuffer();
             var connection = GetMockedConnection();
-            var sampleModule = GetSampleModule();
-
-            connection.ExportDataReceived += buffer.OnExportDataReceived;
+            var manager = new ModuleDefinitionManager("./Assets/");
+            await manager.RefreshModuleAsync();
 
             // Act
-            connection.Start();
+            var client = new DcsBiosClient(connection, buffer, manager);
+            await client.StartAsync();
+
+            DcsBiosOutput<string> output = client.Outputs.FirstOrDefault(o => o.Definition.Instrument.Identifier == "UFC_OPTION_DISPLAY_1") as DcsBiosOutput<string>;
 
             // Assert
-            var scratchPad1 = sampleModule.Instruments.FirstOrDefault(i => i.Identifier == "UFC_OPTION_DISPLAY_1");
-            Assert.AreEqual(expected: "GRCV", actual: scratchPad1.OutputDefinitions.FirstOrDefault().GetValueFromBuffer(buffer.Buffer));
+            // Wait for all of them to roll in.
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            Assert.AreEqual(expected: "GRCV", actual: output.Value);
+        }
+
+        [TestMethod]
+        public async Task E2EDataExportScenarioTest_WithValidExportDuplicatedBuffer_OnlyNotifyChangedOnce()
+        {
+            // Arrange
+            var buffer = new DcsBiosDataBuffer();
+            var connection = GetMockedConnectionWithDuplicates();
+            var manager = new ModuleDefinitionManager("./Assets/");
+            await manager.RefreshModuleAsync();
+
+            // This was due to the initial update will also be counted as one update.
+            int propertyChangedCounter = -1;
+
+            // Act
+            var client = new DcsBiosClient(connection, buffer, manager);
+            await client.StartAsync();
+
+            DcsBiosOutput<string> output = client.Outputs.FirstOrDefault(o => o.Definition.Instrument.Identifier == "UFC_OPTION_DISPLAY_1") as DcsBiosOutput<string>;
+            output.PropertyChanged += (s, e) =>
+            {
+                propertyChangedCounter++;
+            };
+
+            // Assert
+            // Wait for all of them to roll in.
+            await Task.Delay(TimeSpan.FromSeconds(10));
+            Assert.AreEqual(expected: 1, actual: propertyChangedCounter);
         }
 
         private IDcsBiosConnection GetMockedConnection()
@@ -47,24 +83,20 @@ namespace DcsBiosSharp.Tests
             return mock.Object;
         }
 
-        private IModule GetSampleModule()
+        private IDcsBiosConnection GetMockedConnectionWithDuplicates()
         {
-            string commonJsonLocation = "./Assets/CommonData.json";
-            string testModuleJsonPath = "./Assets/FA-18C_hornet.json";
-
-            if (!File.Exists(testModuleJsonPath) && !File.Exists(commonJsonLocation))
+            var mock = new Mock<IDcsBiosConnection>();
+            mock.Setup(c => c.Start()).Callback(async () =>
             {
-                Assert.Inconclusive($"Test json is missing");
-            }
+                // buffer
+                await Task.Delay(2000);
+                byte[] buffer = File.ReadAllBytes("./Assets/dump3.buff");
+                var parser = new DcsBiosProtocolParser();
+                IReadOnlyList<IDcsBiosExportData> data = parser.ParseBuffer(buffer);
+                mock.Raise(m => m.ExportDataReceived += null, mock.Object, new DcsBiosExportDataReceivedEventArgs(data, DateTime.Now));
+            });
 
-            string commonJson = File.ReadAllText(commonJsonLocation);
-            string moduleJson = File.ReadAllText(testModuleJsonPath);
-
-            // Act
-            var parser = new DcsBiosModuleDefinitionJsonParser(commonJson);
-            IModule module = parser.ParseModuleFromJson(Path.GetFileNameWithoutExtension(testModuleJsonPath), moduleJson);
-
-            return module;
+            return mock.Object;
         }
     }
 }

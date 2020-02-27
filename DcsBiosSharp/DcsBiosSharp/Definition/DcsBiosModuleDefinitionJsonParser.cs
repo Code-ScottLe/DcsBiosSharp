@@ -7,24 +7,15 @@ using Newtonsoft.Json.Linq;
 
 namespace DcsBiosSharp.Definition
 {
-    public class DcsBiosModuleDefinitionJsonParser
+    public class DcsBiosModuleDefinitionJsonParser : IDcsBiosModuleDefinitionJsonParser
     {
-        private IModule _commonsModule;
-
-        public DcsBiosModuleDefinitionJsonParser(string commonDataJson = default)
+        public DcsBiosModuleDefinitionJsonParser()
         {
-            _commonsModule = string.IsNullOrWhiteSpace(commonDataJson) ? null : ParseModuleFromJson("CommonData", commonDataJson);
         }
 
         public IModule ParseModuleFromJson(string moduleId, string json)
         {
             List<IModuleInstrument> instruments = new List<IModuleInstrument>();
-
-            // Add common data if we have them.
-            foreach (var metaInstrument in _commonsModule?.Instruments ?? Enumerable.Empty<IModuleInstrument>())
-            {
-                instruments.Add(metaInstrument);
-            }
 
             if (!string.IsNullOrWhiteSpace(json))
             {
@@ -39,24 +30,22 @@ namespace DcsBiosSharp.Definition
                         string commandCategory = (string)command["category"];
                         string commandControlType = (string)command["control_type"];
 
-                        JArray inputs = (JArray)command["inputs"];
+                        var commandInstance = new DcsBiosModuleInstrument(commandCategory, commandControlType, commandDescription, commandIdentifier);
 
-                        List<IDcsBiosInputDefinition> inputList = new List<IDcsBiosInputDefinition>();
+                        JArray inputs = (JArray)command["inputs"];
                         foreach (JObject inputJsonObject in inputs)
                         {
-                            IDcsBiosInputDefinition input = CreateInputDefinitionFromJson(inputJsonObject);
-                            inputList.Add(input);
+                            IDcsBiosInputDefinition input = CreateInputDefinitionFromJson(inputJsonObject, commandInstance);
+                            commandInstance.AddInput(input);
                         }
 
                         JArray outputs = (JArray)command["outputs"];
-                        List<IDcsBiosOutputDefinition> outputDefinitionList = new List<IDcsBiosOutputDefinition>();
                         foreach (JObject outputJsonObject in outputs)
                         {
-                            IDcsBiosOutputDefinition outputDef = CreateOutputDefinitionFromJson(outputJsonObject);
-                            outputDefinitionList.Add(outputDef);
+                            IDcsBiosOutputDefinition outputDef = CreateOutputDefinitionFromJson(outputJsonObject, commandInstance);
+                            commandInstance.AddOutput(outputDef);
                         }
 
-                        var commandInstance = new DcsBiosModuleInstrument(commandCategory, commandControlType, commandDescription, commandIdentifier, inputList, outputDefinitionList);
                         instruments.Add(commandInstance);
                     }
                 }
@@ -67,7 +56,7 @@ namespace DcsBiosSharp.Definition
             return instance;
         }
 
-        public IDcsBiosOutputDefinition CreateOutputDefinitionFromJson(JObject outputJsonObject)
+        public IDcsBiosOutputDefinition CreateOutputDefinitionFromJson(JObject outputJsonObject, IModuleInstrument instrument)
         {
             // try get the address.
             if (!outputJsonObject.TryGetValue("address", out JToken addressToken))
@@ -92,13 +81,13 @@ namespace DcsBiosSharp.Definition
 
                 long shiftBy = outputJsonObject.TryGetValue("shift_by", out JToken shiftByToken) ? (long)(shiftByToken as JValue).Value : throw new ArgumentException("can't find the integer shift_by");
 
-                return new IntegerOutputDefinition((uint)address, (int)shiftBy, (int)mask, (int)maxValue, description, suffix);
+                return new IntegerOutputDefinition(instrument,(uint)address, (int)shiftBy, (int)mask, (int)maxValue, description, suffix);
             }
             else if (outputType == "string")
             {
                 long maxLength = outputJsonObject.TryGetValue("max_length", out JToken maxLengthToken) ? (long)(maxLengthToken as JValue).Value : throw new ArgumentException("can't find the string max length");
 
-                return new StringOutputDefinition((uint)address, (int)maxLength, description, suffix);
+                return new StringOutputDefinition(instrument, (uint)address, (int)maxLength, description, suffix);
             }
             else
             {
@@ -106,7 +95,7 @@ namespace DcsBiosSharp.Definition
             }
         }
 
-        public IDcsBiosInputDefinition CreateInputDefinitionFromJson(JObject inputJsonObject)
+        public IDcsBiosInputDefinition CreateInputDefinitionFromJson(JObject inputJsonObject, IModuleInstrument moduleInstrument)
         {
             // Try get the "interface" section
             if (!inputJsonObject.TryGetValue("interface", out JToken inputInterface))
@@ -119,7 +108,7 @@ namespace DcsBiosSharp.Definition
 
             if (inputInterfaceString == FixedStepCommandDefinition.DEFAULT_COMMAND_INTERFACE_NAME)
             {
-                return string.IsNullOrEmpty(def) ? new FixedStepCommandDefinition() : new FixedStepCommandDefinition(def);
+                return string.IsNullOrEmpty(def) ? new FixedStepCommandDefinition(moduleInstrument) : new FixedStepCommandDefinition(moduleInstrument,def);
             }
             else if (inputInterfaceString == SetStateCommandDefinition.DEFAULT_COMMAND_INTERFACE_NAME)
             {
@@ -128,9 +117,9 @@ namespace DcsBiosSharp.Definition
                     switch (max.Type)
                     {
                         case JTokenType.Integer:
-                            return new SetState<long>((long)value.Value, def);
+                            return new SetStateCommandDefinition<long>(moduleInstrument,(long)value.Value, def);
                         case JTokenType.Float:
-                            return new SetState<double>((double)value.Value, def);
+                            return new SetStateCommandDefinition<double>(moduleInstrument,(double)value.Value, def);
                         default:
                             System.Diagnostics.Debug.WriteLine($"Dropping a command. Type: {max.Type} | Raw: {max.ToString()}");
                             return null;
@@ -138,7 +127,7 @@ namespace DcsBiosSharp.Definition
                 }
                 else
                 {
-                    return new SetState<uint>(uint.MaxValue, def);
+                    return new SetStateCommandDefinition<uint>(moduleInstrument,uint.MaxValue, def);
                 }
             }
             else if (inputInterfaceString == ActionCommandDefinition.DEFAULT_COMMAND_INTERFACE_NAME)
@@ -150,7 +139,7 @@ namespace DcsBiosSharp.Definition
 
                 string argValue = (arg as JValue).Value as string;
 
-                return new ActionCommandDefinition(argValue, def);
+                return new ActionCommandDefinition(moduleInstrument,argValue, def);
             }
             else if (inputInterfaceString == VariableStepCommandDefinition.DEFAULT_COMMAND_INTERFACE_NAME)
             {
@@ -162,9 +151,9 @@ namespace DcsBiosSharp.Definition
                     switch (max.Type)
                     {
                         case JTokenType.Integer:
-                            return new VariableStepCommandDefinition((int)(Int64)maxValue.Value, (int)(Int64)suggestValue.Value); // even though this is technically Uint16
+                            return new VariableStepCommandDefinition(moduleInstrument,(int)(Int64)maxValue.Value, (int)(Int64)suggestValue.Value); // even though this is technically Uint16
                         case JTokenType.Float:
-                            return new VariableStepCommandDefinition((double)maxValue.Value, (double)suggestValue.Value);
+                            return new VariableStepCommandDefinition(moduleInstrument,(double)maxValue.Value, (double)suggestValue.Value);
                         default:
                             System.Diagnostics.Debug.WriteLine($"Dropping a command. Type: {max.Type} | Raw: {max.ToString()}");
                             return null;

@@ -31,21 +31,50 @@ namespace DcsBiosSharp.Definition.Inputs
             get; set;
         }
 
-        public VariableStepCommandDefinition(double maxValue, double suggestedSteps, string description = default(string))
-            : this(description)
+        public VariableStepCommandDefinition(IModuleInstrument moduleInstrument, double maxValue, double suggestedSteps, string description = default(string))
         {
             MaxValue = maxValue;
             SuggestedSteps = suggestedSteps;
-        }
-
-        protected VariableStepCommandDefinition(string description = default(string))
-        {
             Description = description;
         }
 
         public IDcsBiosCommand CreateCommand(params object[] args)
         {
-            throw new NotImplementedException();
+            string commandArg;
+
+            if (args.Length != 1)
+            {
+                throw new ArgumentOutOfRangeException("SetState expected only one argument");
+            }
+            else if (args[0] is string cmd)
+            {
+                switch(cmd)
+                {
+                    case "INC":
+                        commandArg = $"+{SuggestedSteps}";
+                        break;
+                    case "DEC":
+                        commandArg = $"-{SuggestedSteps}";
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException($"VariableStep was given a string command that it didn't understand: {cmd}. Only expect INC/DEC");
+                }
+            }
+            else if (!(args[0] is double value))
+            {
+                throw new ArgumentException($"VariableStep was given args with incompatible type {args.GetType().Name}");
+            }
+            else if (value > MaxValue)
+            {
+                throw new ArgumentOutOfRangeException($"args is exceed the max value based on definition.");
+            }
+            else
+            {
+                commandArg = value < 0 ? $"-{value}" : $"+{value}"; 
+            }
+
+            var instance = new DcsBiosCommand(this, commandArg);
+            return instance;
         }
 
     }

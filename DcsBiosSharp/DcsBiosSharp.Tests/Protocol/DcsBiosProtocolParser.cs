@@ -10,11 +10,13 @@ namespace DcsBiosSharp.Protocol.Tests
     [TestClass]
     public class DcsBiosProtocolParserTest
     {
-        [TestMethod]
-        public void ParseBufferTest_WithValidBuffer_ReturnNonZeroUpdates()
+        [DataTestMethod]
+        [DataRow("./Assets/dump.buffer")]
+        [DataRow("./Assets/dump3.buff")]
+        public void ParseBufferTest_WithValidBuffer_ReturnNonZeroUpdates(string bufferLocation)
         {
             // Arrange
-            byte[] buffer = File.ReadAllBytes("./Assets/dump.buffer");
+            byte[] buffer = File.ReadAllBytes(bufferLocation);
 
             // Act
 

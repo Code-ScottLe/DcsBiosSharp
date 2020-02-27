@@ -2,7 +2,7 @@
 {
     public interface IDcsBiosCommand
     {
-        string Name
+        string CommandIdentifier
         {
             get;
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace DcsBiosSharp.Definition.Outputs
 {
@@ -29,11 +30,15 @@ namespace DcsBiosSharp.Definition.Outputs
             get;
         }
 
-        object GetValueFromBuffer(IReadOnlyList<byte> buffer);
+        object GetValueFromBuffer(IList<byte> buffer);
+
+        object GetValueFromMemory(Memory<byte> sliced);
     }
 
     public interface IDcsBiosOutputDefinition<T> : IDcsBiosOutputDefinition
     {
-        new T GetValueFromBuffer(IReadOnlyList<byte> buffer);
+        new T GetValueFromBuffer(IList<byte> buffer);
+
+        new T GetValueFromMemory(Memory<byte> sliced);
     }
 }

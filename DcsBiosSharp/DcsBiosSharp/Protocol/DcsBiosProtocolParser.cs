@@ -117,7 +117,7 @@ namespace DcsBiosSharp.Protocol
 
         public byte[] GetInputBuffer(IDcsBiosCommand command)
         {
-            string payload = $"{command.Name} {command.Arguments}\n";
+            string payload = $"{command.CommandIdentifier} {command.Arguments}\n";
             byte[] buffer = Encoding.ASCII.GetBytes(payload);
 
             return buffer;

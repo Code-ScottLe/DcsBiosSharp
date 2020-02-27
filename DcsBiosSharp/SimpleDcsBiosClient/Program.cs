@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DcsBiosSharp.Client;
 using DcsBiosSharp.Connection;
 using DcsBiosSharp.Definition;
 using DcsBiosSharp.Protocol;
@@ -12,17 +14,36 @@ namespace SimpleDcsBiosClient
 {
     class Program
     {
+        private static MemoryStream memStream;
+        private static BinaryWriter writer;
+
         static async Task Main(string[] args)
         {
             int tick = 0;
             int counter = 0;
-            IDcsBiosConnection connection = new DcsBiosUdpConnection(); // default everything.
 
-            DcsBiosDataBuffer buffer = new DcsBiosDataBuffer();
-            connection.ExportDataReceived += buffer.OnExportDataReceived;
-            connection.ExportDataReceived += (s, e) =>
+            int sizeCounter = 0;
+
+            bool exportBuffer = false;
+
+            DcsBiosClient client = new DcsBiosClient();
+
+            if (exportBuffer)
             {
-                if (++tick >= 100) // DCS-BIOS does 30 updates per seconds = 0.033s per update. Time 100 result in about 3s per console print. Just to see if DCS is still exporting.
+                memStream = new MemoryStream();
+                writer = new BinaryWriter(memStream);
+                client.Connection.RawBufferReceived += (s, e) =>
+                {
+                    // export raw buffer.
+                    writer.Write(e);
+                    sizeCounter += e.Length;
+                };
+            }
+
+            // Just to see if DCS is still exporting.
+            client.Connection.ExportDataReceived += (s, e) =>
+            {
+                if (++tick >= 100) // DCS-BIOS does 30 updates per seconds = 0.033s per update. Time 100 result in about 3s per console print. 
                 {
                     Console.WriteLine($"Exported {counter += e.Data.Count} bytes! !");
                     tick = 0;
@@ -34,38 +55,51 @@ namespace SimpleDcsBiosClient
                 }
                 
             };
+            await client.StartAsync();
 
-            IModule module = GetModule();
-            var scratchPads = module.Instruments.Where(i => i.Identifier.Contains("UFC_OPTION_DISPLAY_"));
-
-            buffer.BufferUpdated += (s, e) =>
+            IEnumerable<DcsBiosOutput> outputs = client.Outputs.Where(o => o.Definition.Instrument.Identifier.Contains("UFC_OPTION_DISPLAY_"));
+            foreach(var output in outputs)
             {
-                var refresh = scratchPads.SelectMany(s => s.OutputDefinitions).Where(o => e.StartIndex <= o.Address && o.Address + o.MaxSize <= e.EndIndex);
-                foreach (var refreshOutput in refresh)
-                {
-                    string value = refreshOutput.GetValueFromBuffer(buffer.Buffer) as string;
-                    Console.WriteLine($"{refreshOutput.Instrument.Identifier} : {value}");
-                }
-                if(refresh.Any())
-                {
-                    Console.WriteLine();
-                }
-            };
-
-            connection.Start();
+                output.PropertyChanged += OutputChanged;
+            }
 
             Console.WriteLine("Waiting for DCS... (type any key to quit)");
             Console.ReadLine();
+
+            if (exportBuffer)
+            {
+                // Clean up and flush to file.
+                writer.Flush();
+
+                using (FileStream streamed = new FileStream("buffer.buff", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                using (BinaryWriter fileWriter = new BinaryWriter(streamed))
+                {
+                    fileWriter.Write(memStream.GetBuffer().Take(sizeCounter).ToArray());
+                    fileWriter.Flush();
+                }
+
+                using (FileStream streamDecoded = new FileStream("buffer.bufferText", FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                using (StreamWriter fileWriter = new StreamWriter(streamDecoded))
+                {
+                    StringBuilder builder = new StringBuilder();
+                    foreach(byte b in memStream.GetBuffer().Take(sizeCounter).ToArray())
+                    {
+                        builder.Append("0x");
+                        builder.Append(b.ToString("x2"));
+                        builder.Append(' ');
+                    }
+
+                    fileWriter.Write(builder.ToString());
+                }
+
+                writer.Dispose();
+                memStream.Dispose();
+            }
         }
 
-        private static IModule GetModule()
+        private static void OutputChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            // Hornet for now.
-            string json = File.ReadAllText("./FA-18C_hornet.json");
-
-            var parser = new DcsBiosModuleDefinitionJsonParser();
-
-            return parser.ParseModuleFromJson("FA-18C_hornet", json);
+            Console.WriteLine($"{(sender as DcsBiosOutput).Definition.Instrument.Identifier} : {(sender as DcsBiosOutput).Value}");
         }
     }
 }
