@@ -31,13 +31,13 @@ namespace DcsBiosSharp.Definition.Outputs
             }
             else
             {
-                return Encoding.ASCII.GetString(buffer.Skip((int)Address).Take(MaxLength).ToArray());
+                return Encoding.ASCII.GetString(buffer.Skip((int)Address).Take(MaxLength).TakeWhile(b => b != '\0').ToArray());
             }
         }
 
         public override string GetValueFromMemory(Memory<byte> sliced)
         {
-            return Encoding.ASCII.GetString(sliced.ToArray());
+            return Encoding.ASCII.GetString(sliced.ToArray().TakeWhile(b => b != '\0').ToArray());
         }
     }
 }

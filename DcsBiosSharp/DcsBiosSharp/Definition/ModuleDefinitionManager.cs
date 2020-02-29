@@ -81,5 +81,10 @@ namespace DcsBiosSharp.Definition
 
 
         }
+
+        public IModule GetModule(string moduleIdentifier)
+        {
+            return Modules.FirstOrDefault(m => m.Name == moduleIdentifier);
+        }
     }
 }

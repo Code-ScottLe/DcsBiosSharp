@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using DcsBiosSharp.Connection;
@@ -13,9 +14,10 @@ using DcsBiosSharp.Protocol;
 
 namespace DcsBiosSharp.Client
 {
-    public class DcsBiosClient
+    public class DcsBiosClient : INotifyPropertyChanged
     {
         private bool _isStarted;
+        private IModule _currentModule;
 
         public IDcsBiosConnection Connection
         {
@@ -37,7 +39,22 @@ namespace DcsBiosSharp.Client
             get; private set;
         }
 
+        public IModule CurrentModule
+        {
+            get => _currentModule;
+            set
+            {
+                if(_currentModule != value)
+                {
+                    _currentModule = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public event EventHandler<DcsBioscClientOutputsChangedEventArgs> OutputsChanged;
+        public event EventHandler<IModule> AircraftChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public DcsBiosClient()
             : this (new DcsBiosUdpConnection(), new DcsBiosDataBuffer(), new ModuleDefinitionManager())
@@ -82,12 +99,17 @@ namespace DcsBiosSharp.Client
                 }
             }
 
+            var aircraftNameOutput = Outputs.FirstOrDefault(o => o.Definition.Instrument.Identifier == "_ACFT_NAME");
+            if (aircraftNameOutput != null)
+            {
+                aircraftNameOutput.PropertyChanged += OnAircraftNameOutputChanged;
+            }
+
             if (!_isStarted)
             {
                 Connection.Start();
                 _isStarted = true;
             }
-            
         }
 
         public Task SendCommandAsync(IDcsBiosInputDefinition inputDef, string args)
@@ -105,6 +127,11 @@ namespace DcsBiosSharp.Client
             return SendCommandAsync(new DcsBiosCommand(command, args));
         }
 
+        private void OnPropertyChanged([CallerMemberName]string propertyName = default)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private void OnBufferUpdated(object sender, DcsBiosBufferUpdatedEventArgs e)
         {
             IEnumerable<IDcsBiosOutputDefinition> outputs = ModuleManager.Modules.SelectMany(m => m.Instruments)
@@ -118,6 +145,16 @@ namespace DcsBiosSharp.Client
             foreach (IDcsBiosExportData exportData in e.Data)
             {
                 DataBuffer.HandleExportData(exportData);
+            }
+        }
+
+        private void OnAircraftNameOutputChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // name change usually mean aircraft change
+            if (sender is DcsBiosOutput<string> output && CurrentModule?.Name != output.Value)
+            {
+                CurrentModule = ModuleManager.GetModule(output.Value);
+                AircraftChanged?.Invoke(this, CurrentModule);
             }
         }
     }
