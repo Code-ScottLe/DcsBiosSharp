@@ -18,6 +18,7 @@ namespace DcsBiosSharp.Client
     {
         private bool _isStarted;
         private IModule _currentModule;
+        private ObservableCollection<DcsBiosOutput> _outputs;
 
         public IDcsBiosConnection Connection
         {
@@ -34,9 +35,9 @@ namespace DcsBiosSharp.Client
             get; private set;
         }
 
-        public ObservableCollection<DcsBiosOutput> Outputs
+        public IList<DcsBiosOutput> Outputs
         {
-            get; private set;
+            get => _outputs;
         }
 
         public IModule CurrentModule
@@ -73,7 +74,7 @@ namespace DcsBiosSharp.Client
 
             _isStarted = false;
 
-            Outputs = new ObservableCollection<DcsBiosOutput>();
+            _outputs = new ObservableCollection<DcsBiosOutput>();
         }
 
         public async Task StartAsync()
