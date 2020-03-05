@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DcsBiosSharp.Connection;
@@ -65,6 +66,7 @@ namespace DcsBiosSharp.Protocol
                 {
                     // Staging from last read, continue.
                     IEnumerable<byte> leftOver = buffer.Skip(skipIndex).Take(_stagingData.byteLeftToRead);
+
                     _stagingData.buffer.AddRange(leftOver);
 
                     _stagingData.byteLeftToRead -= leftOver.Count();
@@ -78,6 +80,43 @@ namespace DcsBiosSharp.Protocol
 
                     skipIndex += leftOver.Count();
                 }
+                else if (buffer is byte[] arrayBuffer)
+                {
+                    // Little endian buffer. Flip it and convert to address and size.
+                    var addressSpan = new Span<byte>(arrayBuffer, skipIndex, 2);
+                    ushort address = (ushort)(addressSpan[1] << 8 | addressSpan[0]);
+
+                    if (address == 0x5555)
+                    {
+                        _isWaitingForSync = true;
+                        continue;
+                    }
+
+                    skipIndex += 2;
+
+                    var sizeSpan = new Span<byte>(arrayBuffer, skipIndex, 2);
+                    ushort size = (ushort)(sizeSpan[1] << 8 | sizeSpan[0]);
+
+                    skipIndex += 2;
+
+                    if (arrayBuffer.Length < skipIndex + size)
+                    {
+                        // need staging.
+                        int byteLeft = arrayBuffer.Length - skipIndex;
+                        byte[] stagingBytes = new Span<byte>(arrayBuffer, skipIndex, byteLeft).ToArray();
+                        _stagingData = (address, stagingBytes.ToList(), size - stagingBytes.Length);
+
+                        skipIndex += byteLeft;
+                    }
+                    else
+                    {
+                        // complete
+                        var exportData = new DcsBiosExportData(address, new Span<byte>(arrayBuffer, skipIndex, size).ToArray());
+                        toBeReturned.Add(exportData);
+
+                        skipIndex += size;
+                    }
+                }
                 else
                 {
                     // Little endian buffer. Flip it and convert to address and size.
@@ -90,10 +129,14 @@ namespace DcsBiosSharp.Protocol
                         continue;
                     }
 
-                    IEnumerable<byte> sizeBuffer = buffer.Skip(skipIndex + 2).Take(2);
+                    skipIndex += 2;
+
+                    IEnumerable<byte> sizeBuffer = buffer.Skip(skipIndex).Take(2);
                     ushort size = (ushort)(sizeBuffer.Last() << 8 | sizeBuffer.First());
 
-                    IEnumerable<byte> valueBuffer = buffer.Skip(skipIndex + 4).Take(size);
+                    skipIndex += 2;
+
+                    IEnumerable<byte> valueBuffer = buffer.Skip(skipIndex).Take(size);
                     if (valueBuffer.Count() < size)
                     {
                         // need staging.
@@ -106,8 +149,7 @@ namespace DcsBiosSharp.Protocol
                         toBeReturned.Add(exportData);
                     }
 
-                    // 4 bytes for 2 ushort (address and size) + size of the data to skip in the buffer to get to the next point.
-                    skipIndex += (4 + valueBuffer.Count());
+                    skipIndex += valueBuffer.Count();
                 }
             }
 
