@@ -16,31 +16,32 @@ namespace DcsBiosSharp.Client.Tests
     public class DcsBiosClientTests
     {
         [TestMethod]
-        [Timeout(5000)]
         public async Task CurrentModuleTest_WithFirstAircraftSelected_UpdateFirstAircraftCorrectly()
         {
             // Arrange
             var buffer = new DcsBiosDataBuffer();
-            var connection = GetMockedConnection();
+            TaskCompletionSource<bool> _connectionDoneSending = new TaskCompletionSource<bool>();
+            var connection = GetMockedConnection(_connectionDoneSending);
             var manager = new ModuleDefinitionManager("./Assets/");
             await manager.RefreshModuleAsync();
-            TaskCompletionSource<IModule> eventFiredSync = new TaskCompletionSource<IModule>();
+            IModule module = null;
 
             // Act
             var client = new DcsBiosClient(connection, buffer, manager);
             client.AircraftChanged += (s, e) =>
             {
                 Debug.WriteLine(e?.Name ?? "Empty");
-                eventFiredSync.SetResult(e);
+                module = e;
             };
             await client.StartAsync();
-            IModule newModule = await eventFiredSync.Task;
+
+            await _connectionDoneSending.Task;
 
             // Assert
-            Assert.AreEqual(expected: "FA-18C_hornet", newModule?.Name);
+            Assert.AreEqual(expected: "FA-18C_hornet", module?.Name);
         }
 
-        private IDcsBiosConnection GetMockedConnection()
+        private IDcsBiosConnection GetMockedConnection(TaskCompletionSource<bool> signalingTask = null)
         {
             var mock = new Mock<IDcsBiosConnection>();
             mock.Setup(c => c.Start()).Callback(() =>
@@ -50,6 +51,11 @@ namespace DcsBiosSharp.Client.Tests
                 var parser = new DcsBiosProtocolParser();
                 IReadOnlyList<IDcsBiosExportData> data = parser.ParseBuffer(buffer);
                 mock.Raise(m => m.ExportDataReceived += null, mock.Object, new DcsBiosExportDataReceivedEventArgs(data, DateTime.Now));
+
+                if (signalingTask != null)
+                {
+                    signalingTask.SetResult(true);
+                }
             });
 
             return mock.Object;
