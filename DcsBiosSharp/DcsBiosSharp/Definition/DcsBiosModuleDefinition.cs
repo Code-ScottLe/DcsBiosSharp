@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace DcsBiosSharp.Definition
 {
-    public class DcsBiosModule : IModuleDefinition
+    public class DcsBiosModuleDefinition : IModuleDefinition
     {
         public string Name
         {
@@ -15,10 +15,10 @@ namespace DcsBiosSharp.Definition
             get; private set;
         }
 
-        public DcsBiosModule(string name, IEnumerable<IModuleInstrumentDefinition> instruments)
+        public DcsBiosModuleDefinition(string name, IEnumerable<IModuleInstrumentDefinition> instrumentsDefinitions)
         {
             Name = name;
-            Instruments = instruments is IReadOnlyList<IModuleInstrumentDefinition> listy ? listy : instruments.ToList();
+            Instruments = instrumentsDefinitions is IReadOnlyList<IModuleInstrumentDefinition> listy ? listy : instrumentsDefinitions.ToList();
         }
     }
 }

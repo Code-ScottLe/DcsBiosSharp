@@ -51,7 +51,7 @@ namespace DcsBiosSharp.Definition
                 }
             }
 
-            var instance = new DcsBiosModule(moduleId, instruments);
+            var instance = new DcsBiosModuleDefinition(moduleId, instruments);
 
             return instance;
         }
