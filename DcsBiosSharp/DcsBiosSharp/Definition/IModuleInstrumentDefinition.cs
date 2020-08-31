@@ -4,7 +4,7 @@ using DcsBiosSharp.Definition.Outputs;
 
 namespace DcsBiosSharp.Definition
 {
-    public interface IModuleInstrument
+    public interface IModuleInstrumentDefinition
     {
         string Category { get; }
 

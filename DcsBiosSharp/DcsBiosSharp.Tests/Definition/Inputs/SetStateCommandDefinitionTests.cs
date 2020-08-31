@@ -16,7 +16,7 @@ namespace DcsBiosSharp.Definition.Inputs.Tests
         public void CreateCommandTest_WithValidArgs_ReturnExpectedCommandInstance(int args)
         {
             // Arrange
-            var mockInstrument = new Mock<IModuleInstrument>();
+            var mockInstrument = new Mock<IModuleInstrumentDefinition>();
             mockInstrument.Setup(m => m.Identifier).Returns("TEST_INS");
             var instance = new SetStateCommandDefinition<int>(mockInstrument.Object, 1, string.Empty);
 

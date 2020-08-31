@@ -7,12 +7,12 @@ namespace DcsBiosSharp.Definition
     {
         string ModuleDefinitionLocation { get; }
 
-        IList<IModule> Modules { get; }
+        IList<IModuleDefinition> Modules { get; }
 
         IDcsBiosModuleDefinitionJsonParser Parser { get; }
 
-        Task RefreshModuleAsync(string searchPatternOverride = default);
+        Task RefreshModulesAsync(string searchPatternOverride = default);
 
-        IModule GetModule(string moduleIdentifier);
+        IModuleDefinition GetModule(string moduleIdentifier);
     }
 }

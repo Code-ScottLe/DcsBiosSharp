@@ -20,12 +20,12 @@ namespace DcsBiosSharp.Definition.Inputs
             get; private set;
         }
 
-        public IModuleInstrument Instrument
+        public IModuleInstrumentDefinition Instrument
         {
             get; set;
         }
 
-        public ActionCommandDefinition(IModuleInstrument instrument, string actionArgs, string description = default(string))
+        public ActionCommandDefinition(IModuleInstrumentDefinition instrument, string actionArgs, string description = default(string))
         {
             Instrument = instrument;
             Description = description;

@@ -13,9 +13,9 @@ namespace DcsBiosSharp.Definition
         {
         }
 
-        public IModule ParseModuleFromJson(string moduleId, string json)
+        public IModuleDefinition ParseModuleFromJson(string moduleId, string json)
         {
-            List<IModuleInstrument> instruments = new List<IModuleInstrument>();
+            List<IModuleInstrumentDefinition> instruments = new List<IModuleInstrumentDefinition>();
 
             if (!string.IsNullOrWhiteSpace(json))
             {
@@ -56,7 +56,7 @@ namespace DcsBiosSharp.Definition
             return instance;
         }
 
-        public IDcsBiosOutputDefinition CreateOutputDefinitionFromJson(JObject outputJsonObject, IModuleInstrument instrument)
+        public IDcsBiosOutputDefinition CreateOutputDefinitionFromJson(JObject outputJsonObject, IModuleInstrumentDefinition instrument)
         {
             // try get the address.
             if (!outputJsonObject.TryGetValue("address", out JToken addressToken))
@@ -95,7 +95,7 @@ namespace DcsBiosSharp.Definition
             }
         }
 
-        public IDcsBiosInputDefinition CreateInputDefinitionFromJson(JObject inputJsonObject, IModuleInstrument moduleInstrument)
+        public IDcsBiosInputDefinition CreateInputDefinitionFromJson(JObject inputJsonObject, IModuleInstrumentDefinition moduleInstrument)
         {
             // Try get the "interface" section
             if (!inputJsonObject.TryGetValue("interface", out JToken inputInterface))

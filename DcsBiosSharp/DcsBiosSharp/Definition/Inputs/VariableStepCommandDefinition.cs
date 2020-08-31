@@ -26,12 +26,12 @@ namespace DcsBiosSharp.Definition.Inputs
 
         public bool HasArgs => true;
 
-        public IModuleInstrument Instrument
+        public IModuleInstrumentDefinition Instrument
         {
             get; set;
         }
 
-        public VariableStepCommandDefinition(IModuleInstrument moduleInstrument, double maxValue, double suggestedSteps, string description = default(string))
+        public VariableStepCommandDefinition(IModuleInstrumentDefinition moduleInstrument, double maxValue, double suggestedSteps, string description = default(string))
         {
             MaxValue = maxValue;
             SuggestedSteps = suggestedSteps;

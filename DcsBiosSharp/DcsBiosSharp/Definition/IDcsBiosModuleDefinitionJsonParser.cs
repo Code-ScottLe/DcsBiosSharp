@@ -2,6 +2,6 @@
 {
     public interface IDcsBiosModuleDefinitionJsonParser
     {
-        IModule ParseModuleFromJson(string moduleId, string json);
+        IModuleDefinition ParseModuleFromJson(string moduleId, string json);
     }
 }

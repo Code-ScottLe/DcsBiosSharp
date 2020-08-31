@@ -16,7 +16,7 @@ namespace DcsBiosSharp.Definition.Tests
             var manager = new ModuleDefinitionManager("./Assets");
 
             // Act
-            await manager.RefreshModuleAsync();
+            await manager.RefreshModulesAsync();
 
             // Assert
             Assert.AreNotEqual(notExpected: 0, actual: manager.Modules.Count);

@@ -19,12 +19,12 @@ namespace DcsBiosSharp.Definition.Inputs
 
         public bool HasArgs => true;
 
-        public IModuleInstrument Instrument
+        public IModuleInstrumentDefinition Instrument
         {
             get; set;
         }
 
-        protected SetStateCommandDefinition(IModuleInstrument instrument, string description)
+        protected SetStateCommandDefinition(IModuleInstrumentDefinition instrument, string description)
         {
             Instrument = instrument;
             Description = description;
@@ -40,7 +40,7 @@ namespace DcsBiosSharp.Definition.Inputs
             get; private set;
         }
 
-        public SetStateCommandDefinition(IModuleInstrument instrument, T maxValue, string description)
+        public SetStateCommandDefinition(IModuleInstrumentDefinition instrument, T maxValue, string description)
             : base(instrument, description)
         {
             MaxValue = maxValue;

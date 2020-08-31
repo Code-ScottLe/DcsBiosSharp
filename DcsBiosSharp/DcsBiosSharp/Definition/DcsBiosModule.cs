@@ -3,22 +3,22 @@ using System.Linq;
 
 namespace DcsBiosSharp.Definition
 {
-    public class DcsBiosModule : IModule
+    public class DcsBiosModule : IModuleDefinition
     {
         public string Name
         {
             get; private set;
         }
 
-        public IReadOnlyList<IModuleInstrument> Instruments
+        public IReadOnlyList<IModuleInstrumentDefinition> Instruments
         {
             get; private set;
         }
 
-        public DcsBiosModule(string name, IEnumerable<IModuleInstrument> instruments)
+        public DcsBiosModule(string name, IEnumerable<IModuleInstrumentDefinition> instruments)
         {
             Name = name;
-            Instruments = instruments is IReadOnlyList<IModuleInstrument> listy ? listy : instruments.ToList();
+            Instruments = instruments is IReadOnlyList<IModuleInstrumentDefinition> listy ? listy : instruments.ToList();
         }
     }
 }

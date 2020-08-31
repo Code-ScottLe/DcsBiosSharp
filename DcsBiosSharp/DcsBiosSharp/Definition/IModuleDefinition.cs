@@ -2,14 +2,14 @@
 
 namespace DcsBiosSharp.Definition
 {
-    public interface IModule
+    public interface IModuleDefinition
     {
         string Name
         {
             get;
         }
 
-        IReadOnlyList<IModuleInstrument> Instruments
+        IReadOnlyList<IModuleInstrumentDefinition> Instruments
         {
             get;
         }

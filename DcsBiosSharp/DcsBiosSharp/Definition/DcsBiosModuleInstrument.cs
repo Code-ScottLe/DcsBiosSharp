@@ -5,7 +5,7 @@ using DcsBiosSharp.Definition.Outputs;
 
 namespace DcsBiosSharp.Definition
 {
-    public class DcsBiosModuleInstrument : IModuleInstrument
+    public class DcsBiosModuleInstrument : IModuleInstrumentDefinition
     {
         private List<IDcsBiosOutputDefinition> _outputDefinitions;
         private List<IDcsBiosInputDefinition> _inputDefinitions;

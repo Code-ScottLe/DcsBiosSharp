@@ -28,13 +28,13 @@ namespace DcsBiosSharp.Definition.Tests
 
             // Act
             var parser = new DcsBiosModuleDefinitionJsonParser();
-            IModule module = parser.ParseModuleFromJson(Path.GetFileNameWithoutExtension(testModuleJsonPath), moduleJson);
+            IModuleDefinition module = parser.ParseModuleFromJson(Path.GetFileNameWithoutExtension(testModuleJsonPath), moduleJson);
 
             // Assert.
             Assert.IsNotNull(module);
             Assert.AreNotEqual(notExpected: 0, actual: module.Instruments.Count);
 
-            IModuleInstrument leftDDIContCtl = module.Instruments.FirstOrDefault(i => i.Identifier == "LEFT_DDI_CONT_CTL");
+            IModuleInstrumentDefinition leftDDIContCtl = module.Instruments.FirstOrDefault(i => i.Identifier == "LEFT_DDI_CONT_CTL");
             Assert.IsNotNull(leftDDIContCtl);
 
             Assert.AreEqual(expected: 2, actual: leftDDIContCtl.InputDefinitions.Count);

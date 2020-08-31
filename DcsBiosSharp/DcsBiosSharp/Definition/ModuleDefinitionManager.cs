@@ -17,7 +17,7 @@ namespace DcsBiosSharp.Definition
             get; private set;
         }
 
-        public IList<IModule> Modules
+        public IList<IModuleDefinition> Modules
         {
             get; private set;
         }
@@ -52,10 +52,10 @@ namespace DcsBiosSharp.Definition
             ModuleDefinitionLocation = moduleDefinitionsLocation;
             Parser = parser;
             SearchPattern = searchPattern;
-            Modules = new List<IModule>();
+            Modules = new List<IModuleDefinition>();
         }
 
-        public async Task RefreshModuleAsync(string searchPatternOverride = default)
+        public async Task RefreshModulesAsync(string searchPatternOverride = default)
         {
             DirectoryInfo info = new DirectoryInfo(ModuleDefinitionLocation);
             if (!info.Exists)
@@ -67,14 +67,19 @@ namespace DcsBiosSharp.Definition
             // look for all jsons
             FileInfo[] files = info.GetFiles(searchPatternOverride ?? SearchPattern);
 
-            foreach (var file in files.Where(i => !Modules.Any(m => m.Name == Path.GetFileNameWithoutExtension(i.FullName))))
+            foreach (var file in files)
             {
                 string moduleId = Path.GetFileNameWithoutExtension(file.FullName);
 
                 using (StreamReader streamReader = file.OpenText())
                 {
                     string json = await streamReader.ReadToEndAsync();
-                    IModule module = await Task.Run(() => Parser.ParseModuleFromJson(moduleId, json));
+                    IModuleDefinition module = await Task.Run(() => Parser.ParseModuleFromJson(moduleId, json));
+
+                    if (Modules.Any(m => m.Name == moduleId))
+                    {
+                        Modules.Remove(Modules.Single(m => m.Name == moduleId));
+                    }
                     Modules.Add(module);
                 }
             }
@@ -82,7 +87,7 @@ namespace DcsBiosSharp.Definition
 
         }
 
-        public IModule GetModule(string moduleIdentifier)
+        public IModuleDefinition GetModule(string moduleIdentifier)
         {
             return Modules.FirstOrDefault(m => m.Name == moduleIdentifier);
         }

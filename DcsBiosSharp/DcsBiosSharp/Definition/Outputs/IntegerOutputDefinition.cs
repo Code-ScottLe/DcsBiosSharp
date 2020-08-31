@@ -26,7 +26,7 @@ namespace DcsBiosSharp.Definition.Outputs
             get => sizeof(ushort); //2 bytes
         }
 
-        public IntegerOutputDefinition(IModuleInstrument moduleInstrument, uint address, int shiftBy, int mask, int maxValue = int.MaxValue, string description = default, string suffix = default)
+        public IntegerOutputDefinition(IModuleInstrumentDefinition moduleInstrument, uint address, int shiftBy, int mask, int maxValue = int.MaxValue, string description = default, string suffix = default)
             : base(moduleInstrument, address, description, suffix)
         {
             ShiftBy = shiftBy;

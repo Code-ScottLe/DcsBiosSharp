@@ -24,17 +24,17 @@ namespace DcsBiosSharp.Definition.Inputs
 
         public string Arguments => string.Empty;
 
-        public IModuleInstrument Instrument
+        public IModuleInstrumentDefinition Instrument
         {
             get; set;
         }
 
-        public FixedStepCommandDefinition(IModuleInstrument instrument)
+        public FixedStepCommandDefinition(IModuleInstrumentDefinition instrument)
             : this(instrument, DEFAULT_COMMAND_DESCRIPTION)
         {
         }
 
-        public FixedStepCommandDefinition(IModuleInstrument instrument, string description)
+        public FixedStepCommandDefinition(IModuleInstrumentDefinition instrument, string description)
         {
             Instrument = instrument;
             Description = description;

@@ -4,7 +4,7 @@ namespace DcsBiosSharp.Definition.Inputs
 {
     public interface IDcsBiosInputDefinition
     {
-        IModuleInstrument Instrument
+        IModuleInstrumentDefinition Instrument
         {
             get; set;
         }
