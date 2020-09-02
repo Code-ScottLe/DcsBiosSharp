@@ -30,7 +30,7 @@ namespace DcsBiosSharp.Definition
                         string commandCategory = (string)command["category"];
                         string commandControlType = (string)command["control_type"];
 
-                        var commandInstance = new DcsBiosModuleInstrument(commandCategory, commandControlType, commandDescription, commandIdentifier);
+                        var commandInstance = new DcsBiosModuleInstrumentDefinition(commandCategory, commandControlType, commandDescription, commandIdentifier);
 
                         JArray inputs = (JArray)command["inputs"];
                         foreach (JObject inputJsonObject in inputs)

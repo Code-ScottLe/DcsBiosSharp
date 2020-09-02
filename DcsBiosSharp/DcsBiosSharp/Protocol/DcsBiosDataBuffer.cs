@@ -21,6 +21,12 @@ namespace DcsBiosSharp.Protocol
             _tracker = new Dictionary<int, List<Action>>();
         }
 
+        public DcsBiosDataBuffer(IDcsBiosConnection connection)
+            : this ()
+        {
+            connection.ExportDataReceived += OnExportDataReceived;
+        }
+
         public virtual void HandleExportData(IDcsBiosExportData exportData)
         {
             byte[] src = exportData.Data is byte[] array ? array : exportData.Data.ToArray();
@@ -30,14 +36,6 @@ namespace DcsBiosSharp.Protocol
             BufferUpdated?.Invoke(this, new DcsBiosBufferUpdatedEventArgs(exportData));
 
             // check for registered to see which one to notify.
-        }
-
-        public void OnExportDataReceived(object sender, DcsBiosExportDataReceivedEventArgs args)
-        {
-            foreach (IDcsBiosExportData exportData in args.Data)
-            {
-                HandleExportData(exportData);
-            }
         }
 
         public Memory<byte> GetTrackingSlicedMemory(int startIndex, int length, Action callBack)
@@ -52,6 +50,15 @@ namespace DcsBiosSharp.Protocol
             _tracker[startIndex].Add(callBack);
 
             return sliced;
+        }
+
+        private void OnExportDataReceived(object sender, DcsBiosExportDataReceivedEventArgs args)
+        {
+            foreach (IDcsBiosExportData exportData in args.Data)
+            {
+                HandleExportData(exportData);
+            }
+
         }
     }
 }

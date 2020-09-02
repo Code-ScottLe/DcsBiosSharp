@@ -5,7 +5,7 @@ using DcsBiosSharp.Definition.Outputs;
 
 namespace DcsBiosSharp.Definition
 {
-    public class DcsBiosModuleInstrument : IModuleInstrumentDefinition
+    public class DcsBiosModuleInstrumentDefinition : IModuleInstrumentDefinition
     {
         private List<IDcsBiosOutputDefinition> _outputDefinitions;
         private List<IDcsBiosInputDefinition> _inputDefinitions;
@@ -40,7 +40,7 @@ namespace DcsBiosSharp.Definition
             get => _outputDefinitions;
         }
 
-        public DcsBiosModuleInstrument(string category, string controlType, string description, string identifier)
+        public DcsBiosModuleInstrumentDefinition(string category, string controlType, string description, string identifier)
         {
             Category = category;
             ControlType = controlType;

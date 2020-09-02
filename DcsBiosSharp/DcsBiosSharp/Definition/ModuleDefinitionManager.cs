@@ -12,12 +12,16 @@ namespace DcsBiosSharp.Definition
         public static readonly string DEFAULT_DCS_BIOS_MODULE_DEFINITION_LOCATION = Environment.ExpandEnvironmentVariables("%USERPROFILE%") + @"/AppData/Roaming/DCS-BIOS/control-reference-json/";
         public const string DEFAULT_MODULE_FOLDER_SEARCH_PATTERN = @"*.json";
 
+        public const string DEFAULT_METADATA_MODULE_NAME = "MetadataStart";
+
+        public const string DEFAULT_COMMON_DATA_MODULE_NAME = "CommonData";
+
         public string ModuleDefinitionLocation
         {
             get; private set;
         }
 
-        public IList<IModuleDefinition> Modules
+        public IDictionary<string, IModuleDefinition> Modules
         {
             get; private set;
         }
@@ -52,7 +56,7 @@ namespace DcsBiosSharp.Definition
             ModuleDefinitionLocation = moduleDefinitionsLocation;
             Parser = parser;
             SearchPattern = searchPattern;
-            Modules = new List<IModuleDefinition>();
+            Modules = new Dictionary<string, IModuleDefinition>();
         }
 
         public async Task RefreshModulesAsync(string searchPatternOverride = default)
@@ -76,20 +80,23 @@ namespace DcsBiosSharp.Definition
                     string json = await streamReader.ReadToEndAsync();
                     IModuleDefinition module = await Task.Run(() => Parser.ParseModuleFromJson(moduleId, json));
 
-                    if (Modules.Any(m => m.Name == moduleId))
+                    if (Modules.ContainsKey(moduleId))
                     {
-                        Modules.Remove(Modules.Single(m => m.Name == moduleId));
+                        Modules.Remove(moduleId);
                     }
-                    Modules.Add(module);
+
+                    Modules.Add(moduleId, module);
                 }
             }
 
-
         }
 
-        public IModuleDefinition GetModule(string moduleIdentifier)
+        public static async Task<ModuleDefinitionManager> CreateAsync()
         {
-            return Modules.FirstOrDefault(m => m.Name == moduleIdentifier);
+            var instance = new ModuleDefinitionManager();
+            await instance.RefreshModulesAsync();
+
+            return instance;
         }
     }
 }
