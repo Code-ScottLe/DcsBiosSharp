@@ -35,7 +35,7 @@ namespace DcsBiosSharp.Definition.Outputs
             }
         }
 
-        public override string GetValueFromMemory(Memory<byte> sliced)
+        public override string GetValueFromSpan(Span<byte> sliced)
         {
             return Encoding.ASCII.GetString(sliced.ToArray().TakeWhile(b => b != '\0').ToArray());
         }

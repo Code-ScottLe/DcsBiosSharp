@@ -33,6 +33,8 @@ namespace DcsBiosSharp.Definition.Outputs
         object GetValueFromBuffer(IList<byte> buffer);
 
         object GetValueFromMemory(Memory<byte> sliced);
+
+        object GetValueFromSpan(Span<byte> span);
     }
 
     public interface IDcsBiosOutputDefinition<T> : IDcsBiosOutputDefinition
@@ -40,5 +42,7 @@ namespace DcsBiosSharp.Definition.Outputs
         new T GetValueFromBuffer(IList<byte> buffer);
 
         new T GetValueFromMemory(Memory<byte> sliced);
+
+        new T GetValueFromSpan(Span<byte> span);
     }
 }

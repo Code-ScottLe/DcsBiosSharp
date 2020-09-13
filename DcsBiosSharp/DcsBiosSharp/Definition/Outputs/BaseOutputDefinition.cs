@@ -45,11 +45,21 @@ namespace DcsBiosSharp.Definition.Outputs
             return (this as IDcsBiosOutputDefinition<T>).GetValueFromBuffer(buffer);
         }
 
-        public abstract T GetValueFromMemory(Memory<byte> sliced);
+        public T GetValueFromMemory(Memory<byte> sliced)
+        {
+            return GetValueFromSpan(sliced.Span);
+        }
+
+        public abstract T GetValueFromSpan(Span<byte> span);
 
         object IDcsBiosOutputDefinition.GetValueFromMemory(Memory<byte> sliced)
         {
             return (this as IDcsBiosOutputDefinition<T>).GetValueFromMemory(sliced);
+        }
+
+        object IDcsBiosOutputDefinition.GetValueFromSpan(Span<byte> span)
+        {
+            return (this as IDcsBiosOutputDefinition<T>).GetValueFromSpan(span);
         }
     }
 }

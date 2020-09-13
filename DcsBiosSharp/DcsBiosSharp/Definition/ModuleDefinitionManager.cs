@@ -12,10 +12,6 @@ namespace DcsBiosSharp.Definition
         public static readonly string DEFAULT_DCS_BIOS_MODULE_DEFINITION_LOCATION = Environment.ExpandEnvironmentVariables("%USERPROFILE%") + @"/AppData/Roaming/DCS-BIOS/control-reference-json/";
         public const string DEFAULT_MODULE_FOLDER_SEARCH_PATTERN = @"*.json";
 
-        public const string DEFAULT_METADATA_MODULE_NAME = "MetadataStart";
-
-        public const string DEFAULT_COMMON_DATA_MODULE_NAME = "CommonData";
-
         public string ModuleDefinitionLocation
         {
             get; private set;

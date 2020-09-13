@@ -119,13 +119,11 @@ namespace DcsBiosSharp.Connection
             while (!_tokenSource.IsCancellationRequested)
             {
                 // Has something in the buffer. 
-                while (_internalBuffer.TryDequeue(out byte[] buffer))
+                while (_internalBuffer.TryDequeue(out byte[] buffer) && ExportDataReceived != null)
                 {
                     IReadOnlyList<IDcsBiosExportData> data = Protocol.ParseBuffer(buffer);
-                    if (ExportDataReceived != null)
-                    {
-                        var ignored = Task.Run(() => ExportDataReceived.Invoke(this, new DcsBiosExportDataReceivedEventArgs(data)));
-                    }
+
+                    _ = Task.Run(() => ExportDataReceived.Invoke(this, new DcsBiosExportDataReceivedEventArgs(data)));
                 }
 
                 _signalToken = new TaskCompletionSource<object>();

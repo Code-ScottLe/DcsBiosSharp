@@ -49,12 +49,12 @@ namespace DcsBiosSharp.Definition.Outputs
             
         }
 
-        public override int GetValueFromMemory(Memory<byte> sliced)
+        public override int GetValueFromSpan(Span<byte> span)
         {
-            ushort raw = BitConverter.ToUInt16(sliced.ToArray().Reverse().ToArray(), 0);
-
+            ushort raw = BitConverter.ToUInt16(span.ToArray().Reverse().ToArray(), 0);
             return ProcessRawNumber(raw);
         }
+
 
         private int ProcessRawNumber(ushort raw)
         {

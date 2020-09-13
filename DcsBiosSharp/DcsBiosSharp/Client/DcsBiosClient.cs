@@ -14,9 +14,16 @@ using DcsBiosSharp.Protocol;
 
 namespace DcsBiosSharp.Client
 {
-    public class DcsBiosClient : BindableBase
+    public class DcsBiosClient : BindableBase, IDisposable
     {
-        private IModuleDefinition _module;
+        public const string DEFAULT_METADATA_START_MODULE_NAME = "MetadataStart";
+        public const string DEFAULT_METADATA_END_MOdULE_NAME = "MetadataEnd";
+
+        public const string DEFAULT_COMMON_DATA_MODULE_NAME = "CommonData";
+
+        private DcsBiosOutput<string> _aircraftNameOutput;
+
+        protected bool disposed = false;
 
         public IDcsBiosConnection DcsConnection
         {
@@ -33,10 +40,14 @@ namespace DcsBiosSharp.Client
             get; private set;
         }
 
-        public IModuleDefinition Module
+        public DcsBiosClient(IModuleDefinitionManager moduleDefinitionManager)
+            : this (new DcsBiosUdpConnection(), moduleDefinitionManager)
         {
-            get => _module;
-            set => Set(ref _module, value);
+        }
+
+        public DcsBiosClient(IDcsBiosConnection connection, IModuleDefinitionManager moduleDefinitionManager)
+            : this (connection, new DcsBiosDataBuffer(), moduleDefinitionManager)
+        {
         }
 
         public DcsBiosClient(IDcsBiosConnection connection, IDcsBiosDataBuffer buffer, IModuleDefinitionManager moduleDefinitionManager)
@@ -46,19 +57,41 @@ namespace DcsBiosSharp.Client
             DefManager = moduleDefinitionManager;
 
             // Subscribe to the metadata for the aircraft change.
-            IModuleDefinition metadata = DefManager.Modules[ModuleDefinitionManager.DEFAULT_METADATA_MODULE_NAME];
+            IModuleDefinition metadata = DefManager.Modules[DEFAULT_METADATA_START_MODULE_NAME];
             var aircraftNameOutputDef =  metadata.Instruments.First(i => i.Identifier == "_ACFT_NAME").OutputDefinitions.Single() as IDcsBiosOutputDefinition<string>;
+
+            _aircraftNameOutput = new DcsBiosOutput<string>(aircraftNameOutputDef, Buffer);
+            _aircraftNameOutput.PropertyChanged += OnAircraftNameChanged;
         }
 
-        public static async Task<DcsBiosClient> CreateAsync()
+        public async Task ConnectAsync()
         {
-            var connection = new DcsBiosUdpConnection();
-            var buffer = new DcsBiosDataBuffer(connection);
-            var moduleManager = await ModuleDefinitionManager.CreateAsync();
 
-            var instance = new DcsBiosClient(connection, buffer, moduleManager);
+        }
 
-            return instance;
+        private void OnAircraftNameChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Look up new aircrafts?
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                // Free any other managed objects here.
+                _aircraftNameOutput.Dispose();
+            }
+
+            disposed = true;
         }
     }
 }

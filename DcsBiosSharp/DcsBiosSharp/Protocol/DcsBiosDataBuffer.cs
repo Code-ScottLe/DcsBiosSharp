@@ -33,7 +33,8 @@ namespace DcsBiosSharp.Protocol
 
             Array.Copy(src, 0, _buffer, exportData.Address, exportData.Data.Count);
 
-            BufferUpdated?.Invoke(this, new DcsBiosBufferUpdatedEventArgs(exportData));
+            BufferUpdated?.Invoke(this, new DcsBiosBufferUpdatedEventArgs
+                (exportData));
 
             // check for registered to see which one to notify.
         }
