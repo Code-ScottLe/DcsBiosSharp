@@ -41,13 +41,11 @@ namespace DcsBiosSharp.Client
             get; private set;
         }
 
-        public IModuleDefinition Module
+        public IModuleDefinition CurrentAircraft
         {
-            get => _module;
-            set => Set(ref _module, value);
+            get => _currentAircraft;
+            private set => Set(ref _currentAircraft, value);
         }
-
-        public event EventHandler<IModuleDefinition> AircraftChanged;
 
         public DcsBiosClient(IModuleDefinitionManager moduleDefinitionManager)
             : this (new DcsBiosUdpConnection(), moduleDefinitionManager)
@@ -80,9 +78,32 @@ namespace DcsBiosSharp.Client
             await DcsConnection.StartAsync();
         }
 
+        public DcsBiosOutput TrackOutput(IDcsBiosOutputDefinition outputDef)
+        {
+            if(outputDef is IDcsBiosOutputDefinition<string> stringy)
+            {
+                return new DcsBiosOutput<string>(stringy, Buffer);
+            }
+            else if (outputDef is IDcsBiosOutputDefinition<int> inty)
+            {
+                return new DcsBiosOutput<int>(inty, Buffer);
+            }
+            else
+            {
+                return new DcsBiosOutput(outputDef, Buffer);
+            }
+        }
+
         private void OnAircraftNameChanged(object sender, PropertyChangedEventArgs e)
         {
             // Look up new aircrafts?
+            if (CurrentAircraft?.Name != _aircraftNameOutput.Value)
+            {
+                if(DefManager.Modules.TryGetValue(_aircraftNameOutput.Value, out IModuleDefinition newModule))
+                {
+                    CurrentAircraft = newModule;
+                }
+            }
         }
 
         private void OnExportDataReceived(object sender, DcsBiosExportDataReceivedEventArgs e)
