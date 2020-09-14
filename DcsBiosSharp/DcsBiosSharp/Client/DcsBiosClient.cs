@@ -22,7 +22,7 @@ namespace DcsBiosSharp.Client
         public const string DEFAULT_COMMON_DATA_MODULE_NAME = "CommonData";
 
         private DcsBiosOutput<string> _aircraftNameOutput;
-        private IModuleDefinition _module;
+        private IModuleDefinition _currentAircraft;
 
         protected bool disposed = false;
 
@@ -47,6 +47,8 @@ namespace DcsBiosSharp.Client
             private set => Set(ref _currentAircraft, value);
         }
 
+        public event EventHandler AircraftChanged;
+
         public DcsBiosClient(IModuleDefinitionManager moduleDefinitionManager)
             : this (new DcsBiosUdpConnection(), moduleDefinitionManager)
         {
@@ -66,11 +68,9 @@ namespace DcsBiosSharp.Client
             DcsConnection.ExportDataReceived += OnExportDataReceived;
 
             // Subscribe to the metadata for the aircraft change.
-            IModuleDefinition metadata = DefManager.Modules[DEFAULT_METADATA_START_MODULE_NAME];
-            var aircraftNameOutputDef =  metadata.Instruments.First(i => i.Identifier == "_ACFT_NAME").OutputDefinitions.Single() as IDcsBiosOutputDefinition<string>;
+            var aircraftNameOutputDef = DefManager.Modules[DEFAULT_METADATA_START_MODULE_NAME].Instruments.First(i => i.Identifier == "_ACFT_NAME").OutputDefinitions.Single() as IDcsBiosOutputDefinition<string>;
 
-            _aircraftNameOutput = new DcsBiosOutput<string>(aircraftNameOutputDef, Buffer);
-            _aircraftNameOutput.PropertyChanged += OnAircraftNameChanged;
+            _aircraftNameOutput = TrackOutput(aircraftNameOutputDef);
         }
 
         public async Task ConnectAsync()
@@ -82,16 +82,21 @@ namespace DcsBiosSharp.Client
         {
             if(outputDef is IDcsBiosOutputDefinition<string> stringy)
             {
-                return new DcsBiosOutput<string>(stringy, Buffer);
+                return TrackOutput(stringy);
             }
             else if (outputDef is IDcsBiosOutputDefinition<int> inty)
             {
-                return new DcsBiosOutput<int>(inty, Buffer);
+                return TrackOutput(inty);
             }
             else
             {
                 return new DcsBiosOutput(outputDef, Buffer);
             }
+        }
+
+        public DcsBiosOutput<T> TrackOutput<T>(IDcsBiosOutputDefinition<T> outputDef)
+        {
+            return new DcsBiosOutput<T>(outputDef, Buffer);
         }
 
         private void OnAircraftNameChanged(object sender, PropertyChangedEventArgs e)
@@ -102,6 +107,8 @@ namespace DcsBiosSharp.Client
                 if(DefManager.Modules.TryGetValue(_aircraftNameOutput.Value, out IModuleDefinition newModule))
                 {
                     CurrentAircraft = newModule;
+
+                    AircraftChanged?.Invoke(this, EventArgs.Empty);
                 }
             }
         }

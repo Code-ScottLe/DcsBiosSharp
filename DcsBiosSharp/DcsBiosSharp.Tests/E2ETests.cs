@@ -73,7 +73,7 @@ namespace DcsBiosSharp.Tests
         private IDcsBiosConnection GetMockedConnection(TaskCompletionSource<bool> signalTask = null)
         {
             var mock = new Mock<IDcsBiosConnection>();
-            mock.Setup(c => c.Start()).Callback(async () =>
+            mock.Setup(c => c.StartAsync()).Returns(async () =>
             {
                 // buffer
                 byte[] buffer = File.ReadAllBytes("./Assets/dump.buffer");
@@ -94,7 +94,7 @@ namespace DcsBiosSharp.Tests
         private IDcsBiosConnection GetMockedConnectionWithDuplicates(TaskCompletionSource<bool> signalTask = null)
         {
             var mock = new Mock<IDcsBiosConnection>();
-            mock.Setup(c => c.Start()).Callback(async () =>
+            mock.Setup(c => c.StartAsync()).Callback(async () =>
             {
                 // buffer
                 await Task.Delay(2000);

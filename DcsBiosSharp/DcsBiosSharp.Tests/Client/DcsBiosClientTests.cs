@@ -44,7 +44,7 @@ namespace DcsBiosSharp.Client.Tests
         private IDcsBiosConnection GetMockedConnection(TaskCompletionSource<bool> signalingTask = null)
         {
             var mock = new Mock<IDcsBiosConnection>();
-            mock.Setup(c => c.Start()).Callback(() =>
+            mock.Setup(c => c.StartAsync()).Returns(() =>
             {
                 // buffer
                 byte[] buffer = File.ReadAllBytes("./Assets/dump.buffer");
@@ -56,6 +56,8 @@ namespace DcsBiosSharp.Client.Tests
                 {
                     signalingTask.SetResult(true);
                 }
+
+                return Task.CompletedTask;
             });
 
             return mock.Object;
