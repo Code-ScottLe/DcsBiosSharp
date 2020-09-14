@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using DcsBiosSharp.Connection;
@@ -39,6 +40,7 @@ namespace DcsBiosSharp.Protocol
                     {
                         // log something?
                         _stagingData = (0, null, 0);
+                        Debug.WriteLine($"Dropping buffer of {_stagingData.buffer.Count}b with {_stagingData.byteLeftToRead}b missing at address {_stagingData.address}");
                     }
 
                     int counter = 4;
@@ -65,6 +67,7 @@ namespace DcsBiosSharp.Protocol
                 else if (IsStaging)
                 {
                     // Staging from last read, continue.
+                    Debug.WriteLine($"Resume reading from last read");
                     IEnumerable<byte> leftOver = buffer.Skip(skipIndex).Take(_stagingData.byteLeftToRead);
 
                     _stagingData.buffer.AddRange(leftOver);
@@ -104,6 +107,8 @@ namespace DcsBiosSharp.Protocol
                         // need staging.
                         int byteLeft = arrayBuffer.Length - skipIndex;
                         byte[] stagingBytes = new Span<byte>(arrayBuffer, skipIndex, byteLeft).ToArray();
+
+                        Debug.WriteLine($"Missing data! Staging and wait for next {size - stagingBytes.Length} for write at address {address} of {arrayBuffer.Length}b");
                         _stagingData = (address, stagingBytes.ToList(), size - stagingBytes.Length);
 
                         skipIndex += byteLeft;

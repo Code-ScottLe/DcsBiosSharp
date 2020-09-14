@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using DcsBiosSharp.Definition.Outputs;
 using DcsBiosSharp.Protocol;
@@ -42,8 +44,13 @@ namespace DcsBiosSharp.Client
         {
             if (Definition.Address >= e.StartIndex && Definition.Address <= e.EndIndex)
             {
-                // Update is for us.
-                Span<byte> sliced = Buffer.Buffer.AsSpan((int)Definition.Address, Definition.MaxSize);
+                // Update is for us. Make a copy right away.
+                Span<byte> sliced = Buffer.Buffer.Skip((int)Definition.Address).Take(Definition.MaxSize).ToArray().AsSpan();
+
+                if (Definition.Instrument.Identifier == "UFC_SCRATCHPAD_NUMBER_DISPLAY")
+                {
+                    Debug.WriteLine($"Hit! slice {string.Join(";", sliced.ToArray())}");
+                }
 
                 Value = Definition.GetValueFromSpan(sliced);
             }

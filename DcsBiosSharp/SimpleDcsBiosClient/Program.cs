@@ -18,7 +18,6 @@ namespace SimpleDcsBiosClient
 
         static async Task Main(string[] args)
         {
-
             Console.WriteLine($"Getting modules...");
             ModuleDefinitionManager manager = new ModuleDefinitionManager();
             await manager.RefreshModulesAsync();
@@ -29,7 +28,7 @@ namespace SimpleDcsBiosClient
             client.AircraftChanged += (s, e) =>
             {
                 Console.WriteLine($"Aircraft changed to: {client.CurrentAircraft?.Name}");
-                IEnumerable<IModuleInstrumentDefinition> hornetUfcOptDisplay = client.CurrentAircraft?.Instruments?.Where(i => i.Identifier.Contains("UFC_OPTION_DISPLAY_"));
+                IEnumerable<IModuleInstrumentDefinition> hornetUfcOptDisplay = client.CurrentAircraft?.Instruments?.Where(i => i.Identifier.Contains("UFC_OPTION_DISPLAY_") || i.Identifier.Contains("UFC_SCRATCHPAD_"));
 
                 if (hornetUfcOptDisplay != null && hornetUfcOptDisplay.Any())
                 {
@@ -42,6 +41,8 @@ namespace SimpleDcsBiosClient
                     }
                 }
             };
+
+            //client.DcsConnection.RawBufferReceived += (s, e) => Console.WriteLine($"Buf {(float)e.Length / 1000} kb !");
 
             await client.ConnectAsync();
 
