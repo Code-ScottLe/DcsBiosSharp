@@ -71,6 +71,7 @@ namespace DcsBiosSharp.Client
             var aircraftNameOutputDef = DefManager.Modules[DEFAULT_METADATA_START_MODULE_NAME].Instruments.First(i => i.Identifier == "_ACFT_NAME").OutputDefinitions.Single() as IDcsBiosOutputDefinition<string>;
 
             _aircraftNameOutput = TrackOutput(aircraftNameOutputDef);
+            _aircraftNameOutput.PropertyChanged += OnAircraftNameChanged;
         }
 
         public async Task ConnectAsync()
