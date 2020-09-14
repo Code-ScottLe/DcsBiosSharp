@@ -9,7 +9,7 @@ namespace DcsBiosSharp.Connection
 
         event EventHandler<DcsBiosExportDataReceivedEventArgs> ExportDataReceived;
 
-        void Start();
+        Task StartAsync();
 
         Task SendCommandAsync(IDcsBiosCommand command);
     }

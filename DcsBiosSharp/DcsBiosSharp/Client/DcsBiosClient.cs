@@ -22,6 +22,7 @@ namespace DcsBiosSharp.Client
         public const string DEFAULT_COMMON_DATA_MODULE_NAME = "CommonData";
 
         private DcsBiosOutput<string> _aircraftNameOutput;
+        private IModuleDefinition _module;
 
         protected bool disposed = false;
 
@@ -40,6 +41,14 @@ namespace DcsBiosSharp.Client
             get; private set;
         }
 
+        public IModuleDefinition Module
+        {
+            get => _module;
+            set => Set(ref _module, value);
+        }
+
+        public event EventHandler<IModuleDefinition> AircraftChanged;
+
         public DcsBiosClient(IModuleDefinitionManager moduleDefinitionManager)
             : this (new DcsBiosUdpConnection(), moduleDefinitionManager)
         {
@@ -56,6 +65,8 @@ namespace DcsBiosSharp.Client
             Buffer = buffer;
             DefManager = moduleDefinitionManager;
 
+            DcsConnection.ExportDataReceived += OnExportDataReceived;
+
             // Subscribe to the metadata for the aircraft change.
             IModuleDefinition metadata = DefManager.Modules[DEFAULT_METADATA_START_MODULE_NAME];
             var aircraftNameOutputDef =  metadata.Instruments.First(i => i.Identifier == "_ACFT_NAME").OutputDefinitions.Single() as IDcsBiosOutputDefinition<string>;
@@ -66,12 +77,20 @@ namespace DcsBiosSharp.Client
 
         public async Task ConnectAsync()
         {
-
+            await DcsConnection.StartAsync();
         }
 
         private void OnAircraftNameChanged(object sender, PropertyChangedEventArgs e)
         {
             // Look up new aircrafts?
+        }
+
+        private void OnExportDataReceived(object sender, DcsBiosExportDataReceivedEventArgs e)
+        {
+            foreach(IDcsBiosExportData exportData in e.Data)
+            {
+                Buffer.HandleExportData(exportData);
+            }
         }
 
         public void Dispose()
@@ -89,6 +108,7 @@ namespace DcsBiosSharp.Client
             {
                 // Free any other managed objects here.
                 _aircraftNameOutput.Dispose();
+                DcsConnection.ExportDataReceived -= OnExportDataReceived;
             }
 
             disposed = true;

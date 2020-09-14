@@ -80,7 +80,7 @@ namespace DcsBiosSharp.Connection
             await _client.SendAsync(buffer, buffer.Length, _dcsBiosReceivingEndpoint);
         }
 
-        public void Start()
+        public Task StartAsync()
         {
             if (_exportingListenerTask == null)
             {
@@ -89,6 +89,7 @@ namespace DcsBiosSharp.Connection
                 _exportParserTask = Task.Factory.StartNew(ParseAndNotifyAsync, _tokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
             }
 
+            return Task.CompletedTask;
         }
 
         private async Task PollingForDataAsync()
