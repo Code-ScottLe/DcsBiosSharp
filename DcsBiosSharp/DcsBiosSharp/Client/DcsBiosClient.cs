@@ -24,6 +24,7 @@ namespace DcsBiosSharp.Client
         private DcsBiosOutput<string> _aircraftNameOutput;
 
         protected bool disposed = false;
+        private IModuleDefinition _currentAircraft;
 
         public IDcsBiosConnection DcsConnection
         {
@@ -38,6 +39,12 @@ namespace DcsBiosSharp.Client
         public IModuleDefinitionManager DefManager
         {
             get; private set;
+        }
+
+        public IModuleDefinition CurrentAircraft
+        {
+            get => _currentAircraft;
+            private set => Set(ref _currentAircraft, value);
         }
 
         public DcsBiosClient(IModuleDefinitionManager moduleDefinitionManager)
@@ -69,9 +76,32 @@ namespace DcsBiosSharp.Client
 
         }
 
+        public DcsBiosOutput TrackOutput(IDcsBiosOutputDefinition outputDef)
+        {
+            if(outputDef is IDcsBiosOutputDefinition<string> stringy)
+            {
+                return new DcsBiosOutput<string>(stringy, Buffer);
+            }
+            else if (outputDef is IDcsBiosOutputDefinition<int> inty)
+            {
+                return new DcsBiosOutput<int>(inty, Buffer);
+            }
+            else
+            {
+                return new DcsBiosOutput(outputDef, Buffer);
+            }
+        }
+
         private void OnAircraftNameChanged(object sender, PropertyChangedEventArgs e)
         {
             // Look up new aircrafts?
+            if (CurrentAircraft?.Name != _aircraftNameOutput.Value)
+            {
+                if(DefManager.Modules.TryGetValue(_aircraftNameOutput.Value, out IModuleDefinition newModule))
+                {
+                    CurrentAircraft = newModule;
+                }
+            }
         }
 
         public void Dispose()
