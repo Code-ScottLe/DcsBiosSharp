@@ -42,18 +42,21 @@ namespace DcsBiosSharp.Client
 
         private void OnBufferUpdated(object sender, DcsBiosBufferUpdatedEventArgs e)
         {
-            if (Definition.Address >= e.StartIndex && Definition.Address <= e.EndIndex)
+            if (e.StartIndex <= Definition.Address && Definition.Address < e.EndIndex)
             {
-                // Update is for us. Make a copy right away.
-                Span<byte> sliced = Buffer.Buffer.Skip((int)Definition.Address).Take(Definition.MaxSize).ToArray().AsSpan();
-
-                if (Definition.Instrument.Identifier == "UFC_SCRATCHPAD_NUMBER_DISPLAY")
-                {
-                    Debug.WriteLine($"Hit! slice {string.Join(";", sliced.ToArray())}");
-                }
-
-                Value = Definition.GetValueFromSpan(sliced);
+                RefreshValue();
             }
+            else if (e.StartIndex >= Definition.Address && e.StartIndex < Definition.Address + Definition.MaxSize)
+            {
+                RefreshValue();
+            }
+        }
+
+        public void RefreshValue()
+        {
+            // Update is for us. Make a copy right away.
+            Span<byte> sliced = Buffer.Buffer.Skip((int)Definition.Address).Take(Definition.MaxSize).ToArray().AsSpan();
+            Value = Definition.GetValueFromSpan(sliced);
         }
 
         ~DcsBiosOutput()

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,14 +9,15 @@ using System.Threading.Tasks;
 using DcsBiosSharp.Client;
 using DcsBiosSharp.Connection;
 using DcsBiosSharp.Definition;
+using DcsBiosSharp.Definition.Outputs;
 using DcsBiosSharp.Protocol;
 
 namespace SimpleDcsBiosClient
 {
     class Program
     {
-        static List<DcsBiosOutput> OptionsDisplay = new List<DcsBiosOutput>();
-
+        static DcsBiosOutput<string> scratchPadOutput;
+        static string scratchPadValue;
         static async Task Main(string[] args)
         {
             Console.WriteLine($"Getting modules...");
@@ -25,21 +27,14 @@ namespace SimpleDcsBiosClient
             Console.WriteLine($"Found: {manager.Modules.Count} modules.");
 
             DcsBiosClient client = new DcsBiosClient(manager);
-            client.AircraftChanged += (s, e) =>
+            CancellationTokenSource tokenSrc = new CancellationTokenSource();
+            client.AircraftChanged += async (s, e) =>
             {
                 Console.WriteLine($"Aircraft changed to: {client.CurrentAircraft?.Name}");
-                IEnumerable<IModuleInstrumentDefinition> hornetUfcOptDisplay = client.CurrentAircraft?.Instruments?.Where(i => i.Identifier.Contains("UFC_OPTION_DISPLAY_") || i.Identifier.Contains("UFC_SCRATCHPAD_"));
+                var scrathpad = client.CurrentAircraft?.Instruments?.FirstOrDefault(i => i.Identifier == "UFC_SCRATCHPAD_NUMBER_DISPLAY");
 
-                if (hornetUfcOptDisplay != null && hornetUfcOptDisplay.Any())
-                {
-                    foreach(IModuleInstrumentDefinition ufcDisplayDef  in hornetUfcOptDisplay)
-                    {
-                        DcsBiosOutput output = client.TrackOutput(ufcDisplayDef.OutputDefinitions.Single());
-                        output.PropertyChanged += (s, e) => Console.WriteLine($"{output.Definition.Instrument.Identifier}: {output.Value}");
-
-                        OptionsDisplay.Add(output);
-                    }
-                }
+                scratchPadOutput = client.TrackOutput(scrathpad.OutputDefinitions.Single() as IDcsBiosOutputDefinition<string>);
+                scratchPadOutput.PropertyChanged += (s, e) => Console.WriteLine($"Scratchpad: {scratchPadOutput.Value}");
             };
 
             //client.DcsConnection.RawBufferReceived += (s, e) => Console.WriteLine($"Buf {(float)e.Length / 1000} kb !");
@@ -48,6 +43,9 @@ namespace SimpleDcsBiosClient
 
             Console.WriteLine($"Press any key to quit");
             Console.ReadKey();
+            tokenSrc.Cancel();
+
+            Console.WriteLine($"Quit!");
         }
     }
 }

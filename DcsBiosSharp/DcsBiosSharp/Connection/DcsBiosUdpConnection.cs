@@ -23,10 +23,9 @@ namespace DcsBiosSharp.Connection
         private Task _exportingListenerTask;
         private Task _exportParserTask;
 
-        private TaskCompletionSource<object> _signalToken;
         private CancellationTokenSource _tokenSource;
 
-        private ConcurrentQueue<byte[]> _internalBuffer;
+        private BlockingCollection<byte[]> _internalBuffer;
 
         private IDcsBiosProtocolParser Protocol
         {
@@ -45,7 +44,7 @@ namespace DcsBiosSharp.Connection
         public DcsBiosUdpConnection(IDcsBiosProtocolParser parser)
         {
             // To do : re-enable user-configurable later.
-            _internalBuffer = new ConcurrentQueue<byte[]>();
+            _internalBuffer = new BlockingCollection<byte[]>();
 
             // Setup sender.
             _client = new UdpClient();
@@ -95,17 +94,13 @@ namespace DcsBiosSharp.Connection
         private async Task PollingForDataAsync()
         {
             try
-            {
+            {-
                 while (!_tokenSource.IsCancellationRequested)
                 {
                     // The lua will send an update roughly 30 times per second
                     UdpReceiveResult result = await _exportListener.ReceiveAsync().ConfigureAwait(false);
-                    _internalBuffer.Enqueue(result.Buffer);
+                    _internalBuffer.Add(result.Buffer);
                     RawBufferReceived?.Invoke(this, result.Buffer);
-                    if (!_signalToken.Task.IsCompleted)
-                    {
-                        _signalToken.SetResult(true);
-                    }
                 }
 
                 //exited. peaceful release?
@@ -120,15 +115,13 @@ namespace DcsBiosSharp.Connection
             while (!_tokenSource.IsCancellationRequested)
             {
                 // Has something in the buffer. 
-                while (_internalBuffer.TryDequeue(out byte[] buffer) && ExportDataReceived != null)
+                if (ExportDataReceived != null)
                 {
+                    var buffer = _internalBuffer.Take();
                     IReadOnlyList<IDcsBiosExportData> data = Protocol.ParseBuffer(buffer);
 
                     _ = Task.Run(() => ExportDataReceived.Invoke(this, new DcsBiosExportDataReceivedEventArgs(data)));
                 }
-
-                _signalToken = new TaskCompletionSource<object>();
-                await _signalToken.Task;
             }
         }
 
