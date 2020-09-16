@@ -37,12 +37,12 @@ namespace DcsBiosSharp.Definition.Outputs
         {
             if (buffer is byte[] arraybyte)
             {
-                return GetValueFromMemory(new Memory<byte>(arraybyte, (int)Address, MaxSize));
+                return GetValueFromSpan(new Span<byte>(arraybyte, (int)Address, MaxSize));
             }
             else
             {
                 // Flip the byte around as it is litte endian
-                ushort raw = BitConverter.ToUInt16(buffer.Skip((int)Address).Take(2).Reverse().ToArray(), 0);
+                ushort raw = BitConverter.ToUInt16(buffer.Skip((int)Address).Take(MaxSize).Reverse().ToArray(), 0);
 
                 return ProcessRawNumber(raw);
             }

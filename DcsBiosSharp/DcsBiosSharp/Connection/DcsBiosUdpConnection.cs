@@ -94,7 +94,7 @@ namespace DcsBiosSharp.Connection
         private async Task PollingForDataAsync()
         {
             try
-            {-
+            {
                 while (!_tokenSource.IsCancellationRequested)
                 {
                     // The lua will send an update roughly 30 times per second

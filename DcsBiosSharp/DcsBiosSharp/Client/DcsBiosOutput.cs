@@ -14,6 +14,8 @@ namespace DcsBiosSharp.Client
 
         protected bool disposed = false;
 
+        private Memory<byte> _mem;
+
         public IDcsBiosOutputDefinition Definition
         {
             get; private set;
@@ -35,9 +37,8 @@ namespace DcsBiosSharp.Client
         {
             Definition = definition;
             Buffer = buffer;
-
-            Buffer.BufferUpdated += OnBufferUpdated;
-            
+            _mem = new Memory<byte>(Buffer.Buffer, (int)Definition.Address, Definition.MaxSize);
+            Buffer.BufferUpdated += OnBufferUpdated;      
         }
 
         private void OnBufferUpdated(object sender, DcsBiosBufferUpdatedEventArgs e)
@@ -54,9 +55,7 @@ namespace DcsBiosSharp.Client
 
         public void RefreshValue()
         {
-            // Update is for us. Make a copy right away.
-            Span<byte> sliced = Buffer.Buffer.Skip((int)Definition.Address).Take(Definition.MaxSize).ToArray().AsSpan();
-            Value = Definition.GetValueFromSpan(sliced);
+            Value = Definition.GetValueFromMemory(_mem);
         }
 
         ~DcsBiosOutput()

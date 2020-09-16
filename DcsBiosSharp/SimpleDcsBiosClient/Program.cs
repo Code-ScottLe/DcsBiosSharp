@@ -35,6 +35,15 @@ namespace SimpleDcsBiosClient
 
                 scratchPadOutput = client.TrackOutput(scrathpad.OutputDefinitions.Single() as IDcsBiosOutputDefinition<string>);
                 scratchPadOutput.PropertyChanged += (s, e) => Console.WriteLine($"Scratchpad: {scratchPadOutput.Value}");
+
+
+                var opDisplay = client.CurrentAircraft?.Instruments?.Where(i => i.Identifier.Contains("UFC_OPTION_DISPLAY"));
+                var trackedOpDisplay = opDisplay.Select(i => client.TrackOutput(i.OutputDefinitions.Single()));
+
+                foreach(var tracked in trackedOpDisplay)
+                {
+                    tracked.PropertyChanged += (s, e) => Console.WriteLine($"{tracked.Definition.Instrument.Identifier} : {tracked.Value}");
+                }
             };
 
             //client.DcsConnection.RawBufferReceived += (s, e) => Console.WriteLine($"Buf {(float)e.Length / 1000} kb !");

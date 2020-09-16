@@ -27,7 +27,7 @@ namespace DcsBiosSharp.Definition.Outputs
         {
             if (buffer is byte[] arraybyte)
             {
-                return GetValueFromMemory(new Memory<byte>(arraybyte, (int)Address, MaxSize));
+                return GetValueFromSpan(new Span<byte>(arraybyte, (int)Address, MaxSize));
             }
             else
             {
